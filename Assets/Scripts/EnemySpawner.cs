@@ -59,6 +59,7 @@ public class EnemySpawner : MonoBehaviour
     public void ReturnEnemy(Enemy enemy) 
     {
         enemy.gameObject.SetActive(false);
+        ScoreManager.Instance.AddScore(enemy.WorthScore);
     }
 
     void OnDestroy() 
@@ -78,6 +79,6 @@ public class EnemySpawner : MonoBehaviour
                 _possibleEnemySpawnPositions.Add(_highestYSpawnPosition.y - (i * _offsetY));
             }
         }
-        return _possibleEnemySpawnPositions[Random.Range(0, _numberOfEnemyLines - 1)];
+        return _possibleEnemySpawnPositions[Random.Range(0, _numberOfEnemyLines)];
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 public class Enemy : MonoBehaviour
 {
     public event Action<Enemy> OnDestroyed;
-
+    [field:SerializeField] public int WorthScore { get; private set; }
     [SerializeField] private float _speed;
     private Rigidbody2D _rb;
 
