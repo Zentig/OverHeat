@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
@@ -72,13 +73,19 @@ public class EnemySpawner : MonoBehaviour
 
     private float GetRandomSpawnPosY() 
     {
-        if (_possibleEnemySpawnPositions.Count == 0) 
+        if (_possibleEnemySpawnPositions.Count == 0) RefreshPossibleYPositions();
+
+        int nextRoad = Random.Range(0, _possibleEnemySpawnPositions.Count - 1);
+        var nextEnemy = _possibleEnemySpawnPositions[nextRoad];
+        _possibleEnemySpawnPositions.Remove(nextEnemy);
+        return nextEnemy;
+    }
+
+    private void RefreshPossibleYPositions() 
+    {
+        for (int i = 0; i < _numberOfEnemyLines; i++)
         {
-            for (int i = 0; i < _numberOfEnemyLines; i++)
-            {
-                _possibleEnemySpawnPositions.Add(_highestYSpawnPosition.y - (i * _offsetY));
-            }
+            _possibleEnemySpawnPositions.Add(_highestYSpawnPosition.y - (i * _offsetY));
         }
-        return _possibleEnemySpawnPositions[Random.Range(0, _numberOfEnemyLines)];
     }
 }

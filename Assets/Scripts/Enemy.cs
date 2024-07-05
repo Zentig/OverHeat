@@ -5,10 +5,12 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    public event Action<Enemy> OnDestroyed;
     [field:SerializeField] public int WorthScore { get; private set; }
+    [field:SerializeField] public int Damage { get; set; }
     [SerializeField] private float _speed;
+    public event Action<Enemy> OnDestroyed;
     private Rigidbody2D _rb;
+    public bool HadCollisionWithPlayer { get; private set; } = false;
 
     void Start()
     {
@@ -17,7 +19,7 @@ public class Enemy : MonoBehaviour
 
     void FixedUpdate()
     {
-        _rb.velocity = Vector2.left * _speed;
+        _rb.velocity = !HadCollisionWithPlayer ? Vector2.left * _speed : new(0,0);
     }
 
     private void OnTriggerEnter2D(Collider2D other) 
@@ -26,6 +28,16 @@ public class Enemy : MonoBehaviour
         {
             gameObject.SetActive(false);
             OnDestroyed?.Invoke(this);
+            ResetCollision();
         }
+    }
+    void ResetCollision() {
+        _rb.gravityScale = 0;
+        HadCollisionWithPlayer = false;
+    }
+    public void SwitchToDestroyedMode() 
+    {
+        _rb.gravityScale = 35;
+        HadCollisionWithPlayer = true;
     }
 }

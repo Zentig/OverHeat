@@ -100,6 +100,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <WorthScore>k__BackingField: 200
+  <Damage>k__BackingField: 1
   _speed: 9
 --- !u!50 &1895990686717516192
 Rigidbody2D:

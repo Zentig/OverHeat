@@ -12,6 +12,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private bool _isUp;
     [SerializeField] private float _rotationTargetScale;
     [SerializeField] private float _rotationTime;
+    private Health _healthReference;
     private Rigidbody2D _rb;
     private Vector2 _currentDirection;
 
@@ -19,6 +20,7 @@ public class PlayerMovement : MonoBehaviour
     private void Start() 
     {
         _rb = GetComponent<Rigidbody2D>();
+        _healthReference = GetComponent<Health>();
         SetDirection(_isUp);
     }
 
@@ -49,6 +51,15 @@ public class PlayerMovement : MonoBehaviour
         }
         
         _rb.velocity = _currentDirection * _speed;
+    }
+
+    private void OnTriggerEnter2D(Collider2D other) 
+    {
+        if (other.gameObject.TryGetComponent(out Enemy enemy) && !enemy.HadCollisionWithPlayer) 
+        {
+            _healthReference.HP -= enemy.Damage;
+            enemy.SwitchToDestroyedMode();
+        }
     }
 }
 
