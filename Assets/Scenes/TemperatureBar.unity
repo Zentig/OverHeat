@@ -158,7 +158,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 90}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -294, y: 4}
+  m_AnchoredPosition: {x: 288, y: 35}
   m_SizeDelta: {x: 298, y: 48}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &68083938
@@ -173,9 +173,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d9b390f3d789d742ac33029a2df3efe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _temperature: {fileID: 68083939}
-  _startTemperature: 1
-  _moveUp: {fileID: 2128888542}
+  _temperatureSlider: {fileID: 0}
+  _initialTemperature: 0
+  _playerMovement: {fileID: 0}
   _upTemperature: 0
   _changeNumber: 1
 --- !u!114 &68083939
@@ -866,8 +866,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 54397f52ae51abcc2b219deabf9811be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <IsGoingUp>k__BackingField: 0
   _speed: 4
-  _isUp: 0
   _rotationTargetScale: 25
   _rotationTime: 0.2
 --- !u!212 &2128888543
