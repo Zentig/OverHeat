@@ -22,7 +22,11 @@ public class PlayerMovement : MonoBehaviour
         SetDirection(_isUp);
     }
 
-    public void InverseMovementDirection() => SetDirection(!_isUp);
+    public void InverseMovementDirection()
+    {
+        _isUp = !_isUp;
+        SetDirection(_isUp);
+    }
 
     public void FixedUpdate() 
     {
@@ -43,6 +47,7 @@ public class PlayerMovement : MonoBehaviour
                 _rotationTargetScale = -Math.Abs(_rotationTargetScale);
                 break;
         }
+        
         _rb.velocity = _currentDirection * _speed;
     }
 }
