@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Xml;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -12,9 +10,11 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float _speed;
     [SerializeField] private float _rotationTargetScale;
     [SerializeField] private float _rotationTime;
+    [SerializeField] private Animator _gameOverAnimator;
     private Health _healthReference;
     private Rigidbody2D _rb;
     private Vector2 _currentDirection;
+    private bool _isPaused;
 
     float r;
     private void Start() 
@@ -23,6 +23,19 @@ public class PlayerMovement : MonoBehaviour
         SetDirection(IsGoingUp);
         _healthReference = GetComponent<Health>();
         _healthReference.OnHPChanged += HandleChangedHP;
+        GameManager.Instance.OnChangePauseState += HandlePauseState;
+    }
+
+    private void HandlePauseState(bool pauseState) 
+    {
+        _isPaused = pauseState;
+        _rb.velocity = pauseState ? new(0,0) : _currentDirection * _speed;
+    }
+
+    private void OnDestroy() 
+    {
+        _healthReference.OnHPChanged -= HandleChangedHP;
+        GameManager.Instance.OnChangePauseState -= HandlePauseState;
     }
 
     public void InverseMovementDirection()
@@ -33,12 +46,14 @@ public class PlayerMovement : MonoBehaviour
 
     public void FixedUpdate() 
     {
+        if (_isPaused) return; 
         float angle = Mathf.SmoothDampAngle(transform.rotation.eulerAngles.z, _rotationTargetScale, ref r, _rotationTime);
         transform.rotation = Quaternion.Euler(new(0,0,angle));
     }
 
     private void SetDirection(bool direction) 
     {
+        if (_isPaused) return;
         switch (direction)
         {
             case true:
@@ -67,7 +82,9 @@ public class PlayerMovement : MonoBehaviour
     {
         if (newHP <= 0) 
         {
-            Debug.LogError("Game over!");
+            Debug.Log("Game over!");
+            GameManager.Instance.ChangePauseMode(true);
+            _gameOverAnimator.SetBool("gameOver", true);
         }
     }
 }

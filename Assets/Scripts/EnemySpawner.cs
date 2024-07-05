@@ -15,11 +15,13 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private int _startEnemyCount = 5;
     private float _timePassed;
     private List<float> _possibleEnemySpawnPositions;
+    private bool _isGamePaused;
 
     void Start()
     {
-        _timePassed = _timeToSpawnEnemy - 0.5f;
+        GameManager.Instance.OnChangePauseState += HandlePauseState;
 
+        _timePassed = _timeToSpawnEnemy - 0.5f;
         _possibleEnemySpawnPositions = new();
         for (int i = 0; i < _startEnemyCount; i++)
         {
@@ -27,8 +29,16 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
+    private void HandlePauseState(bool pauseState)
+    {
+        _isGamePaused = pauseState;
+        _enemyStorage.gameObject.SetActive(!pauseState);
+    }
+
     void Update()
     {
+        if (_isGamePaused) { return; }
+        
         _timePassed += Time.deltaTime;
         if (_timePassed >= _timeToSpawnEnemy) 
         {

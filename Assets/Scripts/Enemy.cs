@@ -15,6 +15,7 @@ public class Enemy : MonoBehaviour
     void Start()
     {
         _rb = GetComponent<Rigidbody2D>();
+        GameManager.Instance.OnChangePauseState += HandlePauseState;
     }
 
     void FixedUpdate()
@@ -22,16 +23,24 @@ public class Enemy : MonoBehaviour
         _rb.velocity = !HadCollisionWithPlayer ? Vector2.left * _speed : new(0,0);
     }
 
+    private void HandlePauseState(bool pauseState) 
+    {
+        if (!pauseState) 
+        {
+            Disable();
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D other) 
     {
-        if (other.gameObject.tag == "enemyFear") 
+        if (other.gameObject.CompareTag("enemyFear")) 
         {
-            gameObject.SetActive(false);
-            OnDestroyed?.Invoke(this);
+            Disable();
             ResetCollision();
         }
     }
-    void ResetCollision() {
+    private void ResetCollision() 
+    {
         _rb.gravityScale = 0;
         HadCollisionWithPlayer = false;
     }
@@ -39,5 +48,10 @@ public class Enemy : MonoBehaviour
     {
         _rb.gravityScale = 35;
         HadCollisionWithPlayer = true;
+    }
+    private void Disable() 
+    {
+        gameObject.SetActive(false);
+        OnDestroyed?.Invoke(this);
     }
 }
