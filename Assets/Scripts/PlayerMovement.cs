@@ -8,8 +8,8 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
+    [field:SerializeField] public bool IsGoingUp { get; private set; }
     [SerializeField] private float _speed;
-    [SerializeField] public bool _isUp;
     [SerializeField] private float _rotationTargetScale;
     [SerializeField] private float _rotationTime;
     private Rigidbody2D _rb;
@@ -19,13 +19,13 @@ public class PlayerMovement : MonoBehaviour
     private void Start() 
     {
         _rb = GetComponent<Rigidbody2D>();
-        SetDirection(_isUp);
+        SetDirection(IsGoingUp);
     }
 
     public void InverseMovementDirection()
     {
-        _isUp = !_isUp;
-        SetDirection(_isUp);
+        IsGoingUp = !IsGoingUp;
+        SetDirection(IsGoingUp);
     }
 
     public void FixedUpdate() 
