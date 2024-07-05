@@ -21,6 +21,7 @@ public class PlayerMovement : MonoBehaviour
     {
         _rb = GetComponent<Rigidbody2D>();
         _healthReference = GetComponent<Health>();
+        _healthReference.OnHPChanged += HandleChangedHP;
         SetDirection(_isUp);
     }
 
@@ -59,6 +60,14 @@ public class PlayerMovement : MonoBehaviour
         {
             _healthReference.HP -= enemy.Damage;
             enemy.SwitchToDestroyedMode();
+        }
+    }
+
+    private void HandleChangedHP(int newHP) 
+    {
+        if (newHP <= 0) 
+        {
+            Debug.LogError("Game over!");
         }
     }
 }
