@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "MiniJam162-Project.sln"
+    "dotnet.defaultSolution": "MiniJam162-Repo.sln"
 }
