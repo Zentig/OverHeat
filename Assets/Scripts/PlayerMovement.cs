@@ -9,7 +9,7 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     [SerializeField] private float _speed;
-    [SerializeField] private bool _isUp;
+    [SerializeField] public bool _isUp;
     [SerializeField] private float _rotationTargetScale;
     [SerializeField] private float _rotationTime;
     private Rigidbody2D _rb;
