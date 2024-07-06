@@ -13,4 +13,4 @@ public class TemperatureBar : MonoBehaviour
         _temperatureSlider.value = _shipTemperatureController.currentTemperature;
     }
     
-    }
+}

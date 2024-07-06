@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.Xml;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -10,8 +8,10 @@ public class PlayerMovement : MonoBehaviour
 {
     [field:SerializeField] public bool IsGoingUp { get; private set; }
     [SerializeField] private float _speed;
+    [SerializeField] private float _maxSpeed;
     [SerializeField] private float _rotationTargetScale;
     [SerializeField] private float _rotationTime;
+    [SerializeField] private float _minRotationTime;
     private Health _healthReference;
     private Rigidbody2D _rb;
     private Vector2 _currentDirection;
@@ -40,7 +40,8 @@ public class PlayerMovement : MonoBehaviour
         transform.rotation = Quaternion.Euler(new(0,0,angle));
 
         
-        _speed = 4 / (1 + (_shipTemperatureController.currentTemperature / _shipTemperatureController.maxTemperature));
+        _speed = _maxSpeed / (1 + (_shipTemperatureController.currentTemperature / _shipTemperatureController.maxTemperature));
+        _rotationTime = _minRotationTime * (1.1f + (_shipTemperatureController.currentTemperature / _shipTemperatureController.maxTemperature));
 
         if (_shipTemperatureController.currentTemperature >= _shipTemperatureController.maxTemperature)
         {
