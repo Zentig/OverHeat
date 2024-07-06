@@ -34,13 +34,13 @@ public class ShipTemperatureController : MonoBehaviour
     {
         currentTemperature += increaseRate * Time.deltaTime;
         currentTemperature = Mathf.Clamp(currentTemperature, minTemperature, maxTemperature);
-        Debug.Log("Temperature increased: " + currentTemperature);
+       // Debug.Log("Temperature increased: " + currentTemperature);
     }
 
     void DecreaseTemperature()
     {
         currentTemperature -= decreaseRate * Time.deltaTime;
         currentTemperature = Mathf.Clamp(currentTemperature, minTemperature, maxTemperature);
-        Debug.Log("Temperature decreased: " + currentTemperature);
+      //  Debug.Log("Temperature decreased: " + currentTemperature);
     }
 }

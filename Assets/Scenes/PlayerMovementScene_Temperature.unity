@@ -851,6 +851,7 @@ MonoBehaviour:
   _speed: 4
   _rotationTargetScale: 25
   _rotationTime: 0.2
+  _shipTemperatureController: {fileID: 1153331205}
 --- !u!50 &1153331200
 Rigidbody2D:
   serializedVersion: 4

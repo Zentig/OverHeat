@@ -17,6 +17,9 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 _currentDirection;
 
     float r;
+
+    [SerializeField] private ShipTemperatureController _shipTemperatureController;
+
     private void Start() 
     {
         _rb = GetComponent<Rigidbody2D>();
@@ -35,10 +38,20 @@ public class PlayerMovement : MonoBehaviour
     {
         float angle = Mathf.SmoothDampAngle(transform.rotation.eulerAngles.z, _rotationTargetScale, ref r, _rotationTime);
         transform.rotation = Quaternion.Euler(new(0,0,angle));
+
+        
+        _speed = 4 / (1 + (_shipTemperatureController.currentTemperature / _shipTemperatureController.maxTemperature));
+
+        if (_shipTemperatureController.currentTemperature >= _shipTemperatureController.maxTemperature)
+        {
+            Debug.Log("explosion");
+        }
     }
 
     private void SetDirection(bool direction) 
     {
+      
+      
         switch (direction)
         {
             case true:
@@ -50,7 +63,8 @@ public class PlayerMovement : MonoBehaviour
                 _rotationTargetScale = -Math.Abs(_rotationTargetScale);
                 break;
         }
-        
+
+
         _rb.velocity = _currentDirection * _speed;
     }
 
