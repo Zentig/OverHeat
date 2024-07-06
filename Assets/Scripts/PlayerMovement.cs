@@ -12,9 +12,12 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float _rotationTargetScale;
     [SerializeField] private float _rotationTime;
     [SerializeField] private float _minRotationTime;
+    [SerializeField] private Animator _gameOverAnimator;
     private Health _healthReference;
     private Rigidbody2D _rb;
     private Vector2 _currentDirection;
+    private bool _isPaused;
+    private GameManager _gameManager;
 
     float r;
 
@@ -26,6 +29,20 @@ public class PlayerMovement : MonoBehaviour
         SetDirection(IsGoingUp);
         _healthReference = GetComponent<Health>();
         _healthReference.OnHPChanged += HandleChangedHP;
+        _gameManager = ServicesStorage.Instance.Get<GameManager>();
+        _gameManager.OnChangePauseState += HandlePauseState;
+    }
+
+    private void HandlePauseState(bool pauseState) 
+    {
+        _isPaused = pauseState;
+        _rb.velocity = pauseState ? new(0,0) : _currentDirection * _speed;
+    }
+
+    private void OnDestroy() 
+    {
+        _healthReference.OnHPChanged -= HandleChangedHP;
+        _gameManager.OnChangePauseState -= HandlePauseState;
     }
 
     public void InverseMovementDirection()
@@ -36,10 +53,10 @@ public class PlayerMovement : MonoBehaviour
 
     public void FixedUpdate() 
     {
+        if (_isPaused) return; 
         float angle = Mathf.SmoothDampAngle(transform.rotation.eulerAngles.z, _rotationTargetScale, ref r, _rotationTime);
         transform.rotation = Quaternion.Euler(new(0,0,angle));
 
-        
         _speed = _maxSpeed / (1 + (_shipTemperatureController.currentTemperature / _shipTemperatureController.maxTemperature));
         _rotationTime = _minRotationTime * (1.1f + (_shipTemperatureController.currentTemperature / _shipTemperatureController.maxTemperature));
 
@@ -51,6 +68,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void SetDirection(bool direction) 
     {
+        if (_isPaused) return;
       
       
         switch (direction)
@@ -71,10 +89,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other) 
     {
-        if (other.gameObject.TryGetComponent(out Enemy enemy) && !enemy.HadCollisionWithPlayer) 
+        if (other.gameObject.TryGetComponent(out Enemy enemy) && !enemy.HadSwitchedToDestroyedMode) 
         {
             _healthReference.HP -= enemy.Damage;
-            enemy.SwitchToDestroyedMode();
+            enemy.SwitchToDestroyAnimationMode();
         }
     }
 
@@ -82,7 +100,9 @@ public class PlayerMovement : MonoBehaviour
     {
         if (newHP <= 0) 
         {
-            Debug.LogError("Game over!");
+            Debug.Log("Game over!");
+            _gameManager.ChangePauseMode(true);
+            _gameOverAnimator.SetBool("gameOver", true);
         }
     }
 }
