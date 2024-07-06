@@ -6,7 +6,7 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _scoreTextUI;
     public int Score { get; private set; }
 
-    void Awake()
+    void Start()
     {
         ServicesStorage.Instance.Register(this);
     }
