@@ -11,11 +11,13 @@ public class Enemy : MonoBehaviour
     public event Action<Enemy> OnDestroyed;
     private Rigidbody2D _rb;
     public bool HadCollisionWithPlayer { get; private set; } = false;
+    private GameManager _gameManager;
 
     void Start()
     {
+        _gameManager = ServicesStorage.Instance.Get<GameManager>();
         _rb = GetComponent<Rigidbody2D>();
-        GameManager.Instance.OnChangePauseState += HandlePauseState;
+        _gameManager.OnChangePauseState += HandlePauseState;
     }
 
     void FixedUpdate()

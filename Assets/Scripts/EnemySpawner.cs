@@ -1,6 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.PackageManager;
+using JetBrains.Annotations;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
@@ -16,10 +17,18 @@ public class EnemySpawner : MonoBehaviour
     private float _timePassed;
     private List<float> _possibleEnemySpawnPositions;
     private bool _isGamePaused;
+    private GameManager _gameManager;
+    private ScoreManager _scoreManager;
+    [field:SerializeField] public List<Enemy> ActiveEnemyStorage { get; private set; }
+
+    private void Awake() => ServicesStorage.Instance.Register(this);
 
     void Start()
     {
-        GameManager.Instance.OnChangePauseState += HandlePauseState;
+        ActiveEnemyStorage = new List<Enemy>();
+        _gameManager = ServicesStorage.Instance.Get<GameManager>();
+        _gameManager.OnChangePauseState += HandlePauseState;
+        _scoreManager = ServicesStorage.Instance.Get<ScoreManager>();
 
         _timePassed = _timeToSpawnEnemy - 0.5f;
         _possibleEnemySpawnPositions = new();
@@ -64,13 +73,17 @@ public class EnemySpawner : MonoBehaviour
             enemyToSpawn = MakeNewEnemy();
         }
         enemyToSpawn.gameObject.SetActive(true);
+
+        ActiveEnemyStorage.Add(enemyToSpawn);
+
         enemyToSpawn.transform.position = new Vector3(position.x, position.y, position.z);
     }
 
     public void ReturnEnemy(Enemy enemy) 
     {
         enemy.gameObject.SetActive(false);
-        ScoreManager.Instance.AddScore(enemy.WorthScore);
+        ActiveEnemyStorage.Remove(enemy);
+        _scoreManager.AddScore(enemy.WorthScore);
     }
 
     void OnDestroy() 
@@ -85,7 +98,7 @@ public class EnemySpawner : MonoBehaviour
     {
         if (_possibleEnemySpawnPositions.Count == 0) RefreshPossibleYPositions();
 
-        int nextRoad = Random.Range(0, _possibleEnemySpawnPositions.Count - 1);
+        int nextRoad = UnityEngine.Random.Range(0, _possibleEnemySpawnPositions.Count - 1);
         var nextEnemy = _possibleEnemySpawnPositions[nextRoad];
         _possibleEnemySpawnPositions.Remove(nextEnemy);
         return nextEnemy;

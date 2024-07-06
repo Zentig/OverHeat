@@ -15,6 +15,7 @@ public class PlayerMovement : MonoBehaviour
     private Rigidbody2D _rb;
     private Vector2 _currentDirection;
     private bool _isPaused;
+    private GameManager _gameManager;
 
     float r;
     private void Start() 
@@ -23,7 +24,8 @@ public class PlayerMovement : MonoBehaviour
         SetDirection(IsGoingUp);
         _healthReference = GetComponent<Health>();
         _healthReference.OnHPChanged += HandleChangedHP;
-        GameManager.Instance.OnChangePauseState += HandlePauseState;
+        _gameManager = ServicesStorage.Instance.Get<GameManager>();
+        _gameManager.OnChangePauseState += HandlePauseState;
     }
 
     private void HandlePauseState(bool pauseState) 
@@ -35,7 +37,7 @@ public class PlayerMovement : MonoBehaviour
     private void OnDestroy() 
     {
         _healthReference.OnHPChanged -= HandleChangedHP;
-        GameManager.Instance.OnChangePauseState -= HandlePauseState;
+        _gameManager.OnChangePauseState -= HandlePauseState;
     }
 
     public void InverseMovementDirection()
@@ -83,7 +85,7 @@ public class PlayerMovement : MonoBehaviour
         if (newHP <= 0) 
         {
             Debug.Log("Game over!");
-            GameManager.Instance.ChangePauseMode(true);
+            _gameManager.ChangePauseMode(true);
             _gameOverAnimator.SetBool("gameOver", true);
         }
     }
