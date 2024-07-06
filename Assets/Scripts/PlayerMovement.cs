@@ -73,10 +73,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other) 
     {
-        if (other.gameObject.TryGetComponent(out Enemy enemy) && !enemy.HadCollisionWithPlayer) 
+        if (other.gameObject.TryGetComponent(out Enemy enemy) && !enemy.HadSwitchedToDestroyedMode) 
         {
             _healthReference.HP -= enemy.Damage;
-            enemy.SwitchToDestroyedMode();
+            enemy.SwitchToDestroyAnimationMode();
         }
     }
 

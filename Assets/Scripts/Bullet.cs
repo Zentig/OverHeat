@@ -6,6 +6,7 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     [SerializeField] private float _bulletSpeed;
+    [SerializeField] private int _damage;
     [SerializeField] private float _lifetime = 4f;
     public event Action<Bullet> OnDestroyed;
     private Rigidbody2D _rb;
@@ -40,11 +41,12 @@ public class Bullet : MonoBehaviour
         } 
     }
 
-    private void OnTriggerEnter2D(Collider2D other) 
+    private void OnCollisionEnter2D(Collision2D other) 
     {
-        if (other.TryGetComponent<Enemy>(out var enemy))
+        if (other.gameObject.TryGetComponent<Enemy>(out var enemy) && !enemy.HadSwitchedToDestroyedMode)
         {
             Debug.Log(enemy.name + " was shot!");
+            enemy.TakeDamage(_damage);
             DeactivateBullet();
         }
     }

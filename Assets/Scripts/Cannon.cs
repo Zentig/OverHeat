@@ -68,10 +68,10 @@ public class Cannon : MonoBehaviour
         
         if (nearestEnemy.Item2 == null) return;
 
-        // transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0,0,Mathf.Clamp(Mathf.Atan2(_nearestEnemy.transform.position.y - transform.position.y, 
-        //                                     _nearestEnemy.transform.position.x - transform.position.x)*Mathf.Rad2Deg,_minZRotation,_maxZRotation)), 0.5f);
-        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0,0,Mathf.Atan2(_nearestEnemy.transform.position.y - transform.position.y, 
-                                            _nearestEnemy.transform.position.x - transform.position.x)*Mathf.Rad2Deg), 0.5f);
+        transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0,0,Mathf.Clamp(Mathf.Atan2(_nearestEnemy.transform.position.y - transform.position.y, 
+                                            _nearestEnemy.transform.position.x - transform.position.x)*Mathf.Rad2Deg,_minZRotation,_maxZRotation)), 0.5f);
+        // transform.rotation = Quaternion.Slerp(transform.rotation, Quaternion.Euler(0,0,Mathf.Atan2(_nearestEnemy.transform.position.y - transform.position.y, 
+        //                                     _nearestEnemy.transform.position.x - transform.position.x)*Mathf.Rad2Deg), 0.5f);
     }
 
     private void Shoot() 
