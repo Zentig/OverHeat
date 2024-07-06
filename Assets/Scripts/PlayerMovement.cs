@@ -13,11 +13,14 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float _rotationTime;
     [SerializeField] private float _minRotationTime;
     [SerializeField] private Animator _gameOverAnimator;
+    [SerializeField] private Animator _explosionAnimator;
+    private Animator _animator;
     private Health _healthReference;
     private Rigidbody2D _rb;
     private Vector2 _currentDirection;
     private bool _isPaused;
     private GameManager _gameManager;
+    private ShipTemperatureController _temperatureController;
 
     float r;
 
@@ -26,8 +29,10 @@ public class PlayerMovement : MonoBehaviour
     private void Start() 
     {
         _rb = GetComponent<Rigidbody2D>();
+        _animator = GetComponent<Animator>();
         SetDirection(IsGoingUp);
         _healthReference = GetComponent<Health>();
+        _temperatureController = GetComponent<ShipTemperatureController>();
         _healthReference.OnHPChanged += HandleChangedHP;
         _gameManager = ServicesStorage.Instance.Get<GameManager>();
         _gameManager.OnChangePauseState += HandlePauseState;
@@ -62,14 +67,13 @@ public class PlayerMovement : MonoBehaviour
 
         if (_shipTemperatureController.currentTemperature >= _shipTemperatureController.maxTemperature)
         {
-            Debug.Log("explosion");
+            if (!_animator.GetBool("gameOver")) PlayDestroyAnimation();
         }
     }
 
     private void SetDirection(bool direction) 
     {
         if (_isPaused) return;
-      
       
         switch (direction)
         {
@@ -82,7 +86,6 @@ public class PlayerMovement : MonoBehaviour
                 _rotationTargetScale = -Math.Abs(_rotationTargetScale);
                 break;
         }
-
 
         _rb.velocity = _currentDirection * _speed;
     }
@@ -101,9 +104,25 @@ public class PlayerMovement : MonoBehaviour
         if (newHP <= 0) 
         {
             Debug.Log("Game over!");
-            _gameManager.ChangePauseMode(true);
-            _gameOverAnimator.SetBool("gameOver", true);
+            SetPauseState(true);
+            PlayGameOver();
         }
     }
+
+    public void PlayDestroyAnimation() 
+    {
+        _animator.SetBool("gameOver", true);
+    }
+
+    public void PlayExplosionAnimation() 
+    {
+        SetPauseState(true);
+        Animator explosionAnim = Instantiate(_explosionAnimator, transform.position, Quaternion.identity);
+        explosionAnim.SetTrigger("explosion");
+    }
+
+    private void SetPauseState(bool state) => _gameManager.ChangePauseMode(state);
+
+    private void PlayGameOver() => _gameOverAnimator.SetBool("gameOver", true);
 }
 

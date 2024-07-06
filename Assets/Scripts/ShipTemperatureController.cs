@@ -2,22 +2,40 @@
 
 public class ShipTemperatureController : MonoBehaviour
 {
-    public float increaseRate = 2f; // Швидкість підвищення температури
-    public float decreaseRate = 0.5f; // Швидкість зниження температури
-    public float minTemperature = 0f; // Мінімальна температура
-    public float maxTemperature = 120f; // Максимальна температура
-    public float currentTemperature = 0f; // Початкова температура
-
-    private Rigidbody2D rb; // Rigidbody компонента для відстеження руху
-    public ScreenRedEffect screenRedEffect; // Посилання на скрипт ScreenRedEffect
+    public float increaseRate = 2f; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    public float decreaseRate = 0.5f; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    public float minTemperature = 0f; // МіпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    public float maxTemperature = 120f; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    public float currentTemperature = 0f; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+    private bool _isPaused = false;
+    private GameManager _gm;
+    private Rigidbody2D rb; // Rigidbody пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+    public ScreenRedEffect screenRedEffect; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ ScreenRedEffect
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>(); 
+        _gm = ServicesStorage.Instance.Get<GameManager>();
+        _gm.OnChangePauseState += HandlePauseState;
+    }
+
+    void HandlePauseState(bool state) 
+    {
+        _isPaused = state;
     }
 
     void Update()
     {
+        screenRedEffect.UpdateOverlayTransparency(currentTemperature);
+        
+        if (_isPaused && currentTemperature != 0) { 
+            currentTemperature = 0;
+            return;
+        }
+        else if (_isPaused) return;
+
+        screenRedEffect.UpdateOverlayTransparency(currentTemperature);
+
         if (rb.velocity.y > 0)
         {
             IncreaseTemperature();
@@ -26,8 +44,6 @@ public class ShipTemperatureController : MonoBehaviour
         {
             DecreaseTemperature();
         }
-
-        screenRedEffect.UpdateOverlayTransparency(currentTemperature);
     }
 
     void IncreaseTemperature()
