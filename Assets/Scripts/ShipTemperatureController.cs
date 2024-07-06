@@ -6,7 +6,7 @@ public class ShipTemperatureController : MonoBehaviour
     public float decreaseRate = 0.5f; // Швидкість зниження температури
     public float minTemperature = 0f; // Мінімальна температура
     public float maxTemperature = 120f; // Максимальна температура
-    private float currentTemperature = 0f; // Початкова температура
+    public float currentTemperature = 0f; // Початкова температура
 
     private Rigidbody2D rb; // Rigidbody компонента для відстеження руху
     public ScreenRedEffect screenRedEffect; // Посилання на скрипт ScreenRedEffect

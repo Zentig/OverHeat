@@ -352,11 +352,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d9b390f3d789d742ac33029a2df3efe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _shipTemperatureController: {fileID: 1153331205}
   _temperatureSlider: {fileID: 538105960}
-  _initialTemperature: 1
-  _playerMovement: {fileID: 1153331199}
-  _upTemperature: 0
-  _changeNumber: 1
 --- !u!114 &538105960
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -402,7 +399,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 0}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 100
+  m_MaxValue: 120
   m_WholeNumbers: 0
   m_Value: 0
   m_OnValueChanged:
@@ -1023,6 +1020,7 @@ MonoBehaviour:
   decreaseRate: 0.5
   minTemperature: 0
   maxTemperature: 120
+  currentTemperature: 0
   screenRedEffect: {fileID: 1146893341}
 --- !u!1 &1375393175
 GameObject:
