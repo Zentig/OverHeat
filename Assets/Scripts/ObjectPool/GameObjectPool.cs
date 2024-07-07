@@ -17,7 +17,7 @@ public class GameObjectPool<T> where T : MonoBehaviour
         PoolQueue = new Queue<T>();
         ActiveObjects = new List<T>();
 
-        // _prefab = prefab;
+        // _prefab = prefab;:w
         _preloadAction = preloadAction;
         _getAction = getAction;
         _returnAction = returnAction;
