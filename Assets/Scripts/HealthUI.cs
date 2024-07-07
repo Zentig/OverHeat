@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,11 +6,11 @@ using UnityEngine.UI;
 
 public class HealthUI : MonoBehaviour
 {
-    [SerializeField] private List<Image> _hpImages;
     [SerializeField] private Health _healthReference;
     [SerializeField] private Image _hpPrefab;
     [SerializeField] private Transform _hpParent;
-    
+    private GameObjectPool<Image> _pool;
+
     private void Awake() 
     {
         _healthReference.OnHPChanged += UpdateHPUI;
@@ -17,32 +18,29 @@ public class HealthUI : MonoBehaviour
     
     private void Start() 
     {
-        for (int i = 0; i < _healthReference.MaxHealth; i++) 
-        {
-            Image newHPImage = Instantiate(_hpPrefab, _hpParent);
-            _hpImages.Add(newHPImage);
-        }
+        _pool = new GameObjectPool<Image>(_hpPrefab, () => Instantiate(_hpPrefab, _hpParent), default, default, 5, _hpParent);
+        _pool.StartPreload();
         UpdateHPUI(_healthReference.HP);
     }
 
     public void UpdateHPUI(int currentHP) 
     { 
-        int activeImages = _hpImages.FindAll(x => x.gameObject.activeInHierarchy).Count;
+        int activeImages = _pool.ActiveObjects.Count;
 
         if (currentHP < activeImages) 
         {
-            int disableImagesCount = _healthReference.MaxHealth - currentHP;
+            int disableImagesCount = activeImages - currentHP;
             for (int i = 0; i < disableImagesCount; i++)
             {
-                _hpImages[^(i+1)].gameObject.SetActive(false);
+                _pool.Return(_pool.ActiveObjects[^(i+1)]);
             }
         }
-        else if (currentHP > activeImages) 
+        if (currentHP > activeImages && currentHP <= _healthReference.MaxHealth) 
         {
-            int enableImagesCount = _healthReference.MaxHealth - currentHP;
-            for (int i = enableImagesCount; i > 0; i--)
+            int enableImagesCount = currentHP - activeImages;
+            for (int i = 0; i < enableImagesCount; i++)
             {
-                _hpImages[^(i+1)].gameObject.SetActive(true);
+                _pool.Get();
             }
         }
     }

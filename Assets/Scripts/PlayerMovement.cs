@@ -97,6 +97,10 @@ public class PlayerMovement : MonoBehaviour
             _healthReference.HP -= enemy.Damage;
             enemy.SwitchToDestroyAnimationMode();
         }
+        if (other.gameObject.tag == "Death") 
+        {
+            PlayExplosionAnimation();
+        }
     }
 
     private void HandleChangedHP(int newHP) 
@@ -117,8 +121,9 @@ public class PlayerMovement : MonoBehaviour
     public void PlayExplosionAnimation() 
     {
         SetPauseState(true);
-        Animator explosionAnim = Instantiate(_explosionAnimator, transform.position, Quaternion.identity);
+        Animator explosionAnim = Instantiate(_explosionAnimator, new Vector3(transform.position.x, transform.position.y + 2.5f, transform.position.z), Quaternion.identity);
         explosionAnim.SetTrigger("explosion");
+        gameObject.SetActive(false);
     }
 
     private void SetPauseState(bool state) => _gameManager.ChangePauseMode(state);
