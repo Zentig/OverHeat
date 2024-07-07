@@ -9,13 +9,22 @@ public class ParticleControllSystem : MonoBehaviour
     [SerializeField] public Transform _pointOfSmoke;
     [SerializeField] private ShipTemperatureController _shipTemperatureController;
     [SerializeField] public List<ParticleSystem> _parametersOfParticle;
-    // Start is called before the first frame update
+    private GameManager _gameManager;
+
     void Start()
     {
-            
+        _gameManager = ServicesStorage.Instance.Get<GameManager>();
+        _gameManager.OnChangePauseState += HandlePauseState;
     }
 
-    // Update is called once per frame
+    void HandlePauseState(bool state) 
+    { 
+        foreach (var item in _parametersOfParticle)
+        {   
+            item.gameObject.SetActive(!state);
+        }
+    }
+
     void FixedUpdate()
     {
         transform.position = _pointOfSmoke.position;

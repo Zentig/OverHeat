@@ -14,12 +14,14 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float _minRotationTime;
     [SerializeField] private Animator _gameOverAnimator;
     [SerializeField] private Animator _explosionAnimator;
+    [SerializeField] private AudioClip _decreaseHPSound;
     private Animator _animator;
     private Health _healthReference;
     private Rigidbody2D _rb;
     private Vector2 _currentDirection;
     private bool _isPaused;
     private GameManager _gameManager;
+    private AudioManager _audioManager;
     private ShipTemperatureController _temperatureController;
 
     float r;
@@ -29,6 +31,7 @@ public class PlayerMovement : MonoBehaviour
     private void Start() 
     {
         _rb = GetComponent<Rigidbody2D>();
+        _audioManager = ServicesStorage.Instance.Get<AudioManager>();
         _animator = GetComponent<Animator>();
         SetDirection(IsGoingUp);
         _healthReference = GetComponent<Health>();
@@ -54,6 +57,11 @@ public class PlayerMovement : MonoBehaviour
     {
         IsGoingUp = !IsGoingUp;
         SetDirection(IsGoingUp);
+    }
+
+    private void Update() 
+    {
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyUp(KeyCode.Space)) InverseMovementDirection();
     }
 
     public void FixedUpdate() 
@@ -110,6 +118,7 @@ public class PlayerMovement : MonoBehaviour
             Debug.Log("Game over!");
             SetPauseState(true);
             PlayGameOver();
+            _audioManager.GameOverSound();
         }
     }
 
@@ -123,6 +132,7 @@ public class PlayerMovement : MonoBehaviour
         SetPauseState(true);
         Animator explosionAnim = Instantiate(_explosionAnimator, new Vector3(transform.position.x, transform.position.y + 2.5f, transform.position.z), Quaternion.identity);
         explosionAnim.SetTrigger("explosion");
+        _audioManager.GameOverSound();
         gameObject.SetActive(false);
     }
 

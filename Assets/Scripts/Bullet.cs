@@ -45,7 +45,6 @@ public class Bullet : MonoBehaviour
     {
         if (other.gameObject.TryGetComponent<Enemy>(out var enemy) && !enemy.HadSwitchedToDestroyedMode)
         {
-            Debug.Log(enemy.name + " was shot!");
             enemy.TakeDamage(_damage);
             DeactivateBullet();
         }

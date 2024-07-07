@@ -7,6 +7,8 @@ public class Cannon : MonoBehaviour
 {
     [SerializeField] private EnemySpawner _enemySpawner;    
     [SerializeField] private GameManager _gameManager;  
+    [SerializeField] private AudioManager _audioManager;
+    [SerializeField] private AudioClip _shootSound;
     [SerializeField] private Bullet _bulletPrefab;
     [SerializeField] private Transform _spawnBulletPos;
     [SerializeField] private float _shootTime;
@@ -18,26 +20,43 @@ public class Cannon : MonoBehaviour
     private float _timePassed;
     private bool _pauseState;
     private GameObjectPool<Bullet> _bulletPool;
+    private GameObjectPool<BulletParticle> _particlePool;
+    [Header("Particles")]
+    [SerializeField] private BulletParticle _particlePrefab;
+    [SerializeField] private Transform _particleParent;
+    [SerializeField] private AudioClip _particleSound;
 
     private void Start() 
     {
         _enemySpawner = ServicesStorage.Instance.Get<EnemySpawner>();
         _gameManager = ServicesStorage.Instance.Get<GameManager>();
+        _audioManager = ServicesStorage.Instance.Get<AudioManager>();
         _gameManager.OnChangePauseState += HandlePauseState;
         _pauseState = false;
 
-        _bulletPool = new GameObjectPool<Bullet>(_bulletPrefab, PreloadAction, null, (x) => {         
+        _bulletPool = new GameObjectPool<Bullet>(BulletPreloadAction, (x) => _audioManager.PlayOneShot(_shootSound, 0.5f, 0.9f, 0.55f), (x) => {         
                 x.OnDestroyed += _bulletPool.Return;
+                _particlePool.Get(x.transform.position);
             },
-            100, _bulletStorage);
+            100);
         _bulletPool.StartPreload();
+
+        _particlePool = new GameObjectPool<BulletParticle>(ParticlePreloadAction, null, null/*(x) => _audioManager.PlayOneShot(_particleSound, 0.7f, 1.1f)*/, 100);    
+        _particlePool.StartPreload();
     }
 
-    private Bullet PreloadAction()
+    private Bullet BulletPreloadAction()
     {
         var obj = Instantiate(_bulletPrefab, _bulletStorage);
         obj.OnDestroyed += _bulletPool.Return;
         obj.Init(); 
+        return obj;
+    }
+
+    private BulletParticle ParticlePreloadAction()
+    {
+        var obj = Instantiate(_particlePrefab, _particleParent);
+        obj.OnDestroyed += _particlePool.Return;
         return obj;
     }
 
@@ -102,6 +121,10 @@ public class Cannon : MonoBehaviour
         foreach (var item in _bulletPool.PoolQueue)
         {
             item.OnDestroyed -= _bulletPool.Return;
+        }
+        foreach (var item in _particlePool.PoolQueue)
+        {
+            item.OnDestroyed -= _particlePool.Return;
         }
     }
 

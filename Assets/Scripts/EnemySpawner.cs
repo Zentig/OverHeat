@@ -13,7 +13,9 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private Vector3 _highestYSpawnPosition; // including this one*
     [SerializeField] private Transform _enemyStorage;
     [SerializeField] private Enemy _enemyPrefab;
-    [SerializeField] private int _startEnemyCount = 5;
+    [SerializeField] private Enemy _enemyPrefab2;
+    [SerializeField] private int _startEnemyCount = 20;
+
     private float _timePassed;
     private List<float> _possibleEnemySpawnPositions;
     private bool _isGamePaused;
@@ -31,15 +33,17 @@ public class EnemySpawner : MonoBehaviour
         _timePassed = _timeToSpawnEnemy - 0.5f;
         _possibleEnemySpawnPositions = new();
 
-        EnemyPool = new GameObjectPool<Enemy>(_enemyPrefab, PreloadAction,
-            null, (x) => { _scoreManager.AddScore(x.WorthScore); },
-            _startEnemyCount, _enemyStorage);
+        EnemyPool = new GameObjectPool<Enemy>(PreloadAction,
+            null, (x) => { 
+                _scoreManager.AddScore(x.WorthScore); 
+            },
+            _startEnemyCount);
         EnemyPool.StartPreload();
     }
 
     private Enemy PreloadAction()
     {
-        var obj = Instantiate(_enemyPrefab, _enemyStorage);
+        var obj = UnityEngine.Random.Range(0,2) == 0 ? Instantiate(_enemyPrefab, _enemyStorage) : Instantiate(_enemyPrefab2, _enemyStorage);
         obj.OnDestroyed += EnemyPool.Return;
         return obj;
     }
@@ -59,6 +63,7 @@ public class EnemySpawner : MonoBehaviour
         {
             EnemyPool.Get(new Vector3(_highestYSpawnPosition.x, GetRandomSpawnPosY(), _highestYSpawnPosition.z));
             _timePassed = 0;
+            _timeToSpawnEnemy -= _timeToSpawnEnemy/350;
         } 
     }
 

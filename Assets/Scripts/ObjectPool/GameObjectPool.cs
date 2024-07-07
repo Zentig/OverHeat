@@ -12,17 +12,15 @@ public class GameObjectPool<T> where T : MonoBehaviour
     private readonly Action<T> _getAction;
     private readonly Func<T> _preloadAction;
 
-    public GameObjectPool(T prefab, Func<T> preloadAction, Action<T> getAction, Action<T> returnAction, int preloadCount, Transform parent = null)
+    public GameObjectPool(Func<T> preloadAction, Action<T> getAction, Action<T> returnAction, int preloadCount)
     {
         PoolQueue = new Queue<T>();
         ActiveObjects = new List<T>();
 
-        // _prefab = prefab;:w
         _preloadAction = preloadAction;
         _getAction = getAction;
         _returnAction = returnAction;
         _preloadCount = preloadCount;
-        // _parent = parent != null ? parent : Object.Instantiate(new GameObject()).transform;
     }
 
     public void StartPreload() 
@@ -71,4 +69,13 @@ public class GameObjectPool<T> where T : MonoBehaviour
         ActiveObjects.Remove(obj);
         obj.gameObject.SetActive(false);
     }
+
+    public void ReturnAll()
+    {
+        for (int i = 0; i < ActiveObjects.Count; i++)
+        {
+            Return(ActiveObjects[i]);
+        }
+    }
+
 }

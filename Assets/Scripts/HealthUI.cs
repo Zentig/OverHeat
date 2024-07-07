@@ -18,7 +18,7 @@ public class HealthUI : MonoBehaviour
     
     private void Start() 
     {
-        _pool = new GameObjectPool<Image>(_hpPrefab, () => Instantiate(_hpPrefab, _hpParent), default, default, 5, _hpParent);
+        _pool = new GameObjectPool<Image>(() => Instantiate(_hpPrefab, _hpParent), default, default, 5);
         _pool.StartPreload();
         UpdateHPUI(_healthReference.HP);
     }
@@ -26,6 +26,15 @@ public class HealthUI : MonoBehaviour
     public void UpdateHPUI(int currentHP) 
     { 
         int activeImages = _pool.ActiveObjects.Count;
+        
+        if (currentHP < 0 && _pool.ActiveObjects.Count > 0) {
+            _pool.ReturnAll();
+            return;
+        }
+        else if (currentHP < 0) 
+        {
+            return;
+        }
 
         if (currentHP < activeImages) 
         {
