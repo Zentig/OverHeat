@@ -1863,7 +1863,7 @@ ParticleSystemRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -3
   m_RenderMode: 0
   m_MeshDistribution: 0
   m_SortMode: 1
@@ -7748,8 +7748,8 @@ SceneRoots:
   - {fileID: 2025423679}
   - {fileID: 1463275146}
   - {fileID: 2052242133}
-  - {fileID: 1610466914}
   - {fileID: 1153331202}
+  - {fileID: 1610466914}
   - {fileID: 828717579}
   - {fileID: 1728785186}
   - {fileID: 526542836}
