@@ -6,6 +6,7 @@ TagManager:
   tags:
   - enemyFear
   - Enemy
+  - Death
   layers:
   - Default
   - TransparentFX

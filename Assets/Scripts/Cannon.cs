@@ -14,10 +14,10 @@ public class Cannon : MonoBehaviour
     [SerializeField] private float _minZRotation;
     [SerializeField] private float _maxZRotation;
     [SerializeField] private Transform _bulletStorage;
-    [SerializeField] private List<Bullet> _bulletList;
     private Enemy _nearestEnemy;
     private float _timePassed;
     private bool _pauseState;
+    private GameObjectPool<Bullet> _bulletPool;
 
     private void Start() 
     {
@@ -25,6 +25,20 @@ public class Cannon : MonoBehaviour
         _gameManager = ServicesStorage.Instance.Get<GameManager>();
         _gameManager.OnChangePauseState += HandlePauseState;
         _pauseState = false;
+
+        _bulletPool = new GameObjectPool<Bullet>(_bulletPrefab, PreloadAction, null, (x) => {         
+                x.OnDestroyed += _bulletPool.Return;
+            },
+            100, _bulletStorage);
+        _bulletPool.StartPreload();
+    }
+
+    private Bullet PreloadAction()
+    {
+        var obj = Instantiate(_bulletPrefab, _bulletStorage);
+        obj.OnDestroyed += _bulletPool.Return;
+        obj.Init(); 
+        return obj;
     }
 
     private void HandlePauseState(bool pauseState) 
@@ -49,12 +63,12 @@ public class Cannon : MonoBehaviour
 
     private void Rotation() 
     {
-        if (_enemySpawner.ActiveEnemyStorage.Count == 0) { return; }
+        if (_enemySpawner.EnemyPool.ActiveObjects.Count == 0) { return; }
 
         (Enemy, float?) nearestEnemy = (default, null);
         Vector3 cannonPosition = transform.position;
 
-        foreach (var enemy in _enemySpawner.ActiveEnemyStorage)
+        foreach (var enemy in _enemySpawner.EnemyPool.ActiveObjects)
         {
             Vector3 enemyPosition = enemy.transform.position;
             float distanceToNextEnemy = Mathf.Sqrt((enemyPosition.x - cannonPosition.x)*(enemyPosition.x - cannonPosition.x) + 
@@ -77,34 +91,17 @@ public class Cannon : MonoBehaviour
         SpawnBullet(_spawnBulletPos.position, transform.rotation);
     }
 
-    private Bullet MakeNewBullet() 
-    {
-        Bullet newBullet = Instantiate(_bulletPrefab, _bulletStorage);
-        _bulletList.Add(newBullet);
-        newBullet.Init();
-        newBullet.gameObject.SetActive(false);
-        newBullet.OnDestroyed += ReturnBullet;
-        return newBullet;
-    }
-
     public void SpawnBullet(Vector3 position, Quaternion rotation) 
     {
-        Bullet bullet = _bulletList.Find(x => !x.gameObject.activeInHierarchy) ?? MakeNewBullet();
-        bullet.gameObject.SetActive(true);
-        bullet.transform.SetPositionAndRotation(position, rotation);
-        bullet.OnShoot();
-    }
-
-    public void ReturnBullet(Bullet bullet) 
-    {
-        bullet.gameObject.SetActive(false);
+        var b = _bulletPool.Get(position, rotation);
+        b.OnShoot();
     }
 
     void OnDestroy() 
     {
-        foreach (var item in _bulletList)
+        foreach (var item in _bulletPool.PoolQueue)
         {
-            item.OnDestroyed -= ReturnBullet;
+            item.OnDestroyed -= _bulletPool.Return;
         }
     }
 

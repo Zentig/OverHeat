@@ -14,7 +14,9 @@ public class Health : MonoBehaviour
         get => _health; 
         set 
         { 
-            _health = Mathf.Min(value, MaxHealth);
+            if (value > MaxHealth) _health = MaxHealth;
+            else _health = value;
+
             OnHPChanged?.Invoke(value);
         }
     }

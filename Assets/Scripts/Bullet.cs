@@ -55,6 +55,7 @@ public class Bullet : MonoBehaviour
     {
         _isDestroyed = true;
         _timePassed = 0;
+        _rb.velocity = Vector2.zero;
         OnDestroyed?.Invoke(this);
     }
 }

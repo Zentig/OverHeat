@@ -6,12 +6,12 @@ using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
+    public GameObjectPool<Enemy> EnemyPool { get; private set; }
     [SerializeField] private float _timeToSpawnEnemy;
     [SerializeField] private int _numberOfEnemyLines;
     [SerializeField] private float _offsetY = 4.75f;
     [SerializeField] private Vector3 _highestYSpawnPosition; // including this one*
     [SerializeField] private Transform _enemyStorage;
-    [SerializeField] private List<Enemy> _enemyList;
     [SerializeField] private Enemy _enemyPrefab;
     [SerializeField] private int _startEnemyCount = 5;
     private float _timePassed;
@@ -19,23 +19,29 @@ public class EnemySpawner : MonoBehaviour
     private bool _isGamePaused;
     private GameManager _gameManager;
     private ScoreManager _scoreManager;
-    [field:SerializeField] public List<Enemy> ActiveEnemyStorage { get; private set; }
 
     private void Awake() => ServicesStorage.Instance.Register(this);
 
     void Start()
     {
-        ActiveEnemyStorage = new List<Enemy>();
         _gameManager = ServicesStorage.Instance.Get<GameManager>();
         _gameManager.OnChangePauseState += HandlePauseState;
         _scoreManager = ServicesStorage.Instance.Get<ScoreManager>();
 
         _timePassed = _timeToSpawnEnemy - 0.5f;
         _possibleEnemySpawnPositions = new();
-        for (int i = 0; i < _startEnemyCount; i++)
-        {
-            MakeNewEnemy();
-        }
+
+        EnemyPool = new GameObjectPool<Enemy>(_enemyPrefab, PreloadAction,
+            null, (x) => { _scoreManager.AddScore(x.WorthScore); },
+            _startEnemyCount, _enemyStorage);
+        EnemyPool.StartPreload();
+    }
+
+    private Enemy PreloadAction()
+    {
+        var obj = Instantiate(_enemyPrefab, _enemyStorage);
+        obj.OnDestroyed += EnemyPool.Return;
+        return obj;
     }
 
     private void HandlePauseState(bool pauseState)
@@ -51,46 +57,16 @@ public class EnemySpawner : MonoBehaviour
         _timePassed += Time.deltaTime;
         if (_timePassed >= _timeToSpawnEnemy) 
         {
-            SpawnEnemy(new Vector3(_highestYSpawnPosition.x, GetRandomSpawnPosY(), _highestYSpawnPosition.z));
+            EnemyPool.Get(new Vector3(_highestYSpawnPosition.x, GetRandomSpawnPosY(), _highestYSpawnPosition.z));
             _timePassed = 0;
         } 
     }
 
-    private Enemy MakeNewEnemy() 
-    {
-        Enemy newEnemy = Instantiate(_enemyPrefab, _enemyStorage);
-        _enemyList.Add(newEnemy);
-        newEnemy.gameObject.SetActive(false);
-        newEnemy.OnDestroyed += ReturnEnemy;
-        return newEnemy;
-    }
-
-    public void SpawnEnemy(Vector3 position) 
-    {
-        Enemy enemyToSpawn = _enemyList.Find(x => !x.gameObject.activeInHierarchy);
-        if (enemyToSpawn == null) 
-        {
-            enemyToSpawn = MakeNewEnemy();
-        }
-        enemyToSpawn.gameObject.SetActive(true);
-
-        ActiveEnemyStorage.Add(enemyToSpawn);
-
-        enemyToSpawn.transform.position = new Vector3(position.x, position.y, position.z);
-    }
-
-    public void ReturnEnemy(Enemy enemy) 
-    {
-        enemy.gameObject.SetActive(false);
-        ActiveEnemyStorage.Remove(enemy);
-        _scoreManager.AddScore(enemy.WorthScore);
-    }
-
     void OnDestroy() 
     {
-        foreach (var item in _enemyList)
+        foreach (var item in EnemyPool.PoolQueue)
         {
-            item.OnDestroyed -= ReturnEnemy;
+            item.OnDestroyed -= EnemyPool.Return;
         }
     }
 
