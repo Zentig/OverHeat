@@ -15,7 +15,6 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] private Enemy _enemyPrefab;
     [SerializeField] private Enemy _enemyPrefab2;
     [SerializeField] private int _startEnemyCount = 20;
-
     private float _timePassed;
     private List<float> _possibleEnemySpawnPositions;
     private bool _isGamePaused;
@@ -51,7 +50,7 @@ public class EnemySpawner : MonoBehaviour
     private void HandlePauseState(bool pauseState)
     {
         _isGamePaused = pauseState;
-        _enemyStorage.gameObject.SetActive(!pauseState);
+        // _enemyStorage.gameObject.SetActive(!pauseState);
     }
 
     void Update()

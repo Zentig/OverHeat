@@ -16,7 +16,6 @@ public class AudioManager : MonoBehaviour
     {
         ServicesStorage.Instance.Register(this);
         _currentIndex = UnityEngine.Random.Range(0,2);
-        Debug.Log(_currentIndex);
         _musicSource.PlayOneShot(_tracks[_currentIndex]);
     }
     private void Update() 

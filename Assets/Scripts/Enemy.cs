@@ -14,6 +14,8 @@ public class Enemy : MonoBehaviour
     private Collider2D _collider;
     public bool HadSwitchedToDestroyedMode { get; private set; } = false;
     private GameManager _gameManager;
+    private bool _isGamePaused;
+    private Animator _animator;
 
     void Start()
     {
@@ -23,19 +25,18 @@ public class Enemy : MonoBehaviour
         _gameManager.OnChangePauseState += HandlePauseState;
         _health = GetComponent<Health>();
         _health.OnHPChanged += HandleChangedHP;
+        _animator = GetComponent<Animator>();
     }
 
     void FixedUpdate()
     {
-        _rb.velocity = !HadSwitchedToDestroyedMode ? Vector2.left * _speed : new(0,0);
+        _rb.velocity = !HadSwitchedToDestroyedMode && !_isGamePaused ? Vector2.left * _speed : new(0,0);
     }
 
     private void HandlePauseState(bool pauseState) 
     {
-        if (!pauseState) 
-        {
-            Disable();
-        }
+        _isGamePaused = pauseState;
+        _animator.speed = pauseState ? 0 : 1;
     }
 
     private void HandleChangedHP(int hp) 

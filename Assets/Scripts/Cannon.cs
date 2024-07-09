@@ -34,7 +34,7 @@ public class Cannon : MonoBehaviour
         _gameManager.OnChangePauseState += HandlePauseState;
         _pauseState = false;
 
-        _bulletPool = new GameObjectPool<Bullet>(BulletPreloadAction, (x) => _audioManager.PlayOneShot(_shootSound, 0.5f, 0.9f, 0.55f), (x) => {         
+        _bulletPool = new GameObjectPool<Bullet>(BulletPreloadAction, (x) => _audioManager.PlayOneShot(_shootSound, 0.5f, 0.9f, 0.35f), (x) => {         
                 x.OnDestroyed += _bulletPool.Return;
                 _particlePool.Get(x.transform.position);
             },

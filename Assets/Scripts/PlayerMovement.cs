@@ -1,20 +1,22 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
+    public event Action OnPlayerKilled;
     [field:SerializeField] public bool IsGoingUp { get; private set; }
     [SerializeField] private float _speed;
     [SerializeField] private float _maxSpeed;
     [SerializeField] private float _rotationTargetScale;
     [SerializeField] private float _rotationTime;
     [SerializeField] private float _minRotationTime;
-    [SerializeField] private Animator _gameOverAnimator;
     [SerializeField] private Animator _explosionAnimator;
-    [SerializeField] private AudioClip _decreaseHPSound;
+    [SerializeField] private AudioClip _explosionSound;
+    [SerializeField] private ShipTemperatureController _shipTemperatureController;
     private Animator _animator;
     private Health _healthReference;
     private Rigidbody2D _rb;
@@ -22,23 +24,20 @@ public class PlayerMovement : MonoBehaviour
     private bool _isPaused;
     private GameManager _gameManager;
     private AudioManager _audioManager;
-    private ShipTemperatureController _temperatureController;
 
     float r;
-
-    [SerializeField] private ShipTemperatureController _shipTemperatureController;
-
-    private void Start() 
+    private async void Start() 
     {
         _rb = GetComponent<Rigidbody2D>();
-        _audioManager = ServicesStorage.Instance.Get<AudioManager>();
         _animator = GetComponent<Animator>();
         SetDirection(IsGoingUp);
         _healthReference = GetComponent<Health>();
-        _temperatureController = GetComponent<ShipTemperatureController>();
         _healthReference.OnHPChanged += HandleChangedHP;
         _gameManager = ServicesStorage.Instance.Get<GameManager>();
         _gameManager.OnChangePauseState += HandlePauseState;
+        OnPlayerKilled += _gameManager.GameOver;
+        await Task.Delay(1);
+        _audioManager = ServicesStorage.Instance.Get<AudioManager>();
     }
 
     private void HandlePauseState(bool pauseState) 
@@ -116,9 +115,7 @@ public class PlayerMovement : MonoBehaviour
         if (newHP <= 0) 
         {
             Debug.Log("Game over!");
-            SetPauseState(true);
-            PlayGameOver();
-            _audioManager.GameOverSound();
+            OnPlayerKilled?.Invoke();
         }
     }
 
@@ -129,15 +126,11 @@ public class PlayerMovement : MonoBehaviour
 
     public void PlayExplosionAnimation() 
     {
-        SetPauseState(true);
+        _audioManager.PlayOneShot(_explosionSound, 0.9f, 1.3f, 1);
         Animator explosionAnim = Instantiate(_explosionAnimator, new Vector3(transform.position.x, transform.position.y + 2.5f, transform.position.z), Quaternion.identity);
         explosionAnim.SetTrigger("explosion");
-        _audioManager.GameOverSound();
+        OnPlayerKilled?.Invoke();
         gameObject.SetActive(false);
     }
-
-    private void SetPauseState(bool state) => _gameManager.ChangePauseMode(state);
-
-    private void PlayGameOver() => _gameOverAnimator.SetBool("gameOver", true);
 }
 

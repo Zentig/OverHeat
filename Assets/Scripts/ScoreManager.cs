@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using TMPro;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ public class ScoreManager : MonoBehaviour
 
     void Start()
     {
+        Score = 0;
         ServicesStorage.Instance.Register(this);
     }
 
