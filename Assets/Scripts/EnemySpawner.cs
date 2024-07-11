@@ -21,8 +21,8 @@ public class EnemySpawner : MonoBehaviour
     private GameManager _gameManager;
     private ScoreManager _scoreManager;
 
-    private void Awake() => ServicesStorage.Instance.Register(this);
-
+    void Awake() => ServicesStorage.Instance.Register(this);
+    
     void Start()
     {
         _gameManager = ServicesStorage.Instance.Get<GameManager>();

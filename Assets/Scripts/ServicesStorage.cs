@@ -12,14 +12,16 @@ public class ServicesStorage : MonoBehaviour
     private void Awake() 
     {
         Instance = this;
+        DontDestroyOnLoad(this);
     }
 
     public void Register<T>(T serviceInstance) 
     {
-        if (!Services.ContainsKey(typeof(T))) 
-        {
-            Services.Add(typeof(T), serviceInstance);
+        if (Services.TryGetValue(typeof(T), out object service)) 
+        { 
+            if (service != null) Services.Remove(typeof(T));
         }
+        Services.Add(typeof(T), serviceInstance);
     }
 
     public T Get<T>() 
