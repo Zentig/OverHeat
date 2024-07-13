@@ -31,7 +31,7 @@ public class ParticleControllSystem : MonoBehaviour
         float rateOverTime = default;
         string main = "";
 
-        switch (_shipTemperatureController.currentTemperature)
+        switch (_shipTemperatureController.CurrentTemperature)
         {
             case < 20:
                 rateOverTime = 1.0f;

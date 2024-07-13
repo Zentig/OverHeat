@@ -27,21 +27,21 @@ public class GameObjectPool<T> where T : MonoBehaviour
     {
         for (int i = 0; i < _preloadCount; i++) 
         {
-            Preload();
+            Preload(true);
         }
     }
 
-    public T Preload()
+    public T Preload(bool isPooled)
     {
         var obj = _preloadAction();
-        PoolQueue.Enqueue(obj);
+        if (isPooled) PoolQueue.Enqueue(obj);
         obj.gameObject.SetActive(false);
         return obj;
     }
 
     public T Get() 
     {
-        T obj = PoolQueue.Count > 0 ? PoolQueue.Dequeue() : Preload();
+        T obj = PoolQueue.Count > 0 ? obj = PoolQueue.Dequeue() : obj = Preload(false);
         obj.gameObject.SetActive(true);
         _getAction?.Invoke(obj);
         ActiveObjects.Add(obj);

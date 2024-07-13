@@ -33,7 +33,11 @@ public class EnemySpawner : MonoBehaviour
         _possibleEnemySpawnPositions = new();
 
         EnemyPool = new GameObjectPool<Enemy>(PreloadAction,
-            null, (x) => { 
+            (x) => { 
+                x.UpdateSpeed();
+                x.SetDefaultAnimatorSpeed();
+            }, 
+            (x) => { 
                 _scoreManager.AddScore(x.WorthScore); 
             },
             _startEnemyCount);

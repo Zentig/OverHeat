@@ -1,46 +1,50 @@
-    using UnityEngine;
+using System;
+using UnityEngine;
 
 public class ShipTemperatureController : MonoBehaviour
 {
-    public float increaseRate = 2f; // �������� ��������� �����������
-    public float decreaseRate = 0.5f; // �������� �������� �����������
-    public float minTemperature = 0f; // ̳�������� �����������
-    public float maxTemperature = 120f; // ����������� �����������
-    public float currentTemperature = 0f; // ��������� �����������
+    [field:SerializeField] public float IncreaseRate { get; private set; } = 2f; 
+    [field:SerializeField] public float DecreaseRate { get; private set; } = 0.5f; 
+    [field:SerializeField] public float MinTemperature { get; private set; } = 0f;  
+    [field:SerializeField] public float MaxTemperature { get; private set; } = 120f; 
+    [field:SerializeField] public float CurrentTemperature { get; private set; } = 0f; 
+    [SerializeField] private ScreenRedEffect _screenRedEffect;
     private bool _isPaused = false;
     private GameManager _gm;
-    private Rigidbody2D rb; // Rigidbody ���������� ��� ���������� ����
-    public ScreenRedEffect screenRedEffect; // ��������� �� ������ ScreenRedEffect
+    private Rigidbody2D _rb; 
 
-    void Start()
+    private void Start()
     {
-        rb = GetComponent<Rigidbody2D>(); 
+        _rb = GetComponent<Rigidbody2D>(); 
         _gm = ServicesStorage.Instance.Get<GameManager>();
         _gm.OnChangePauseState += HandlePauseState;
+        _gm.OnGameOver += HandleGameOver;
     }
 
-    void HandlePauseState(bool state) 
+    private void OnDestroy() 
+    {
+        _gm.OnChangePauseState -= HandlePauseState;
+        _gm.OnGameOver -= HandleGameOver;
+    }
+
+    private void HandlePauseState(bool state) 
     {
         _isPaused = state;
     }
 
+    private void HandleGameOver() => CurrentTemperature = 0;
+
     void Update()
-    {
-        screenRedEffect.UpdateOverlayTransparency(currentTemperature);
-        
-        if (_isPaused && currentTemperature != 0) { 
-            currentTemperature = 0;
-            return;
-        }
-        else if (_isPaused) return;
+    {        
+        if (_isPaused) return;
 
-        screenRedEffect.UpdateOverlayTransparency(currentTemperature);
+        _screenRedEffect.UpdateOverlayTransparency(CurrentTemperature);
 
-        if (rb.velocity.y > 0)
+        if (_rb.velocity.y > 0)
         {
             IncreaseTemperature();
         }
-        else if (rb.velocity.y < 0)
+        else if (_rb.velocity.y < 0)
         {
             DecreaseTemperature();
         }
@@ -48,15 +52,15 @@ public class ShipTemperatureController : MonoBehaviour
 
     void IncreaseTemperature()
     {
-        currentTemperature += increaseRate * Time.deltaTime;
-        currentTemperature = Mathf.Clamp(currentTemperature, minTemperature, maxTemperature);
+        CurrentTemperature += IncreaseRate * Time.deltaTime;
+        CurrentTemperature = Mathf.Clamp(CurrentTemperature, MinTemperature, MaxTemperature);
        // Debug.Log("Temperature increased: " + currentTemperature);
     }
 
     void DecreaseTemperature()
     {
-        currentTemperature -= decreaseRate * Time.deltaTime;
-        currentTemperature = Mathf.Clamp(currentTemperature, minTemperature, maxTemperature);
+        CurrentTemperature -= DecreaseRate * Time.deltaTime;
+        CurrentTemperature = Mathf.Clamp(CurrentTemperature, MinTemperature, MaxTemperature);
       //  Debug.Log("Temperature decreased: " + currentTemperature);
     }
 }

@@ -7,6 +7,7 @@ public class Enemy : MonoBehaviour
 {
     [field:SerializeField] public int WorthScore { get; private set; }
     [field:SerializeField] public int Damage { get; set; }
+    [SerializeField] private float _destroyedStateGravity;
     [SerializeField] private float _speed;
     private Health _health;
     public event Action<Enemy> OnDestroyed;
@@ -26,17 +27,21 @@ public class Enemy : MonoBehaviour
         _health = GetComponent<Health>();
         _health.OnHPChanged += HandleChangedHP;
         _animator = GetComponent<Animator>();
+
+        UpdateSpeed();
     }
 
-    void FixedUpdate()
-    {
-        _rb.velocity = !HadSwitchedToDestroyedMode && !_isGamePaused ? Vector2.left * _speed : new(0,0);
-    }
-
-    private void HandlePauseState(bool pauseState) 
+    private void HandlePauseState(bool pauseState)
     {
         _isGamePaused = pauseState;
-        _animator.speed = pauseState ? 0 : 1;
+        UpdateSpeed();
+        SetAnimatorSpeed(pauseState ? 0 : 1);
+    }
+
+    public void UpdateSpeed()
+    {
+        if (_rb == null) _rb = GetComponent<Rigidbody2D>();
+        _rb.velocity = !HadSwitchedToDestroyedMode && !_isGamePaused ? Vector2.left * _speed : new(0, 0);
     }
 
     private void HandleChangedHP(int hp) 
@@ -61,11 +66,18 @@ public class Enemy : MonoBehaviour
         HadSwitchedToDestroyedMode = false;
     }
 
-    public void SwitchToDestroyAnimationMode() 
+    public void SwitchToDestroyAnimationMode()
     {
-        _rb.gravityScale = 35;
+        _rb.gravityScale = _destroyedStateGravity;
         HadSwitchedToDestroyedMode = true;
         _collider.isTrigger = true;
+        SetAnimatorSpeed(0);
+    }
+
+    public void SetDefaultAnimatorSpeed() 
+    {
+        if (_animator == null) _animator = GetComponent<Animator>();
+        SetAnimatorSpeed(1);
     }
 
     private void Disable() 
@@ -80,4 +92,5 @@ public class Enemy : MonoBehaviour
     {
         _health.HP -= damage;
     }
+    private void SetAnimatorSpeed(int value) => _animator.speed = value;
 }

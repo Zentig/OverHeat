@@ -6,8 +6,12 @@ public class EntryPointManager : MonoBehaviour
 {
     private void Awake() 
     {
-        GameObject go = new GameObject("ServicesStorage");
-        go.AddComponent<ServicesStorage>();
+        GameObject servicesStorage = new GameObject("ServicesStorage");
+        servicesStorage.AddComponent<ServicesStorage>();
+
+        GameObject saveLoadManager = new GameObject("SaveLoadManager");
+        saveLoadManager.AddComponent<SaveLoadManager>();
+
+        SceneManager.LoadScene(1);
     }
-    void Start() => SceneManager.LoadScene(0);
 }

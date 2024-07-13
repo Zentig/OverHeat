@@ -10,7 +10,7 @@ public class TemperatureBar : MonoBehaviour
 
     private void FixedUpdate()
     {
-        _temperatureSlider.value = _shipTemperatureController.currentTemperature;
+        _temperatureSlider.value = _shipTemperatureController.CurrentTemperature;
     }
     
 }

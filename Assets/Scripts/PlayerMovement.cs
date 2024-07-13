@@ -24,11 +24,14 @@ public class PlayerMovement : MonoBehaviour
     private bool _isPaused;
     private GameManager _gameManager;
     private AudioManager _audioManager;
+    private AudioSource _audioSource;
+    private float _sfxVolume;
 
     float r;
     private async void Start() 
     {
         _rb = GetComponent<Rigidbody2D>();
+        _audioSource = GetComponent<AudioSource>();
         _animator = GetComponent<Animator>();
         SetDirection(IsGoingUp);
         _healthReference = GetComponent<Health>();
@@ -38,6 +41,7 @@ public class PlayerMovement : MonoBehaviour
         OnPlayerKilled += _gameManager.GameOver;
         await Task.Delay(1);
         _audioManager = ServicesStorage.Instance.Get<AudioManager>();
+        _audioManager.OnSFXVolumeChanged += (value) => _audioSource.volume = value;
     }
 
     private void HandlePauseState(bool pauseState) 
@@ -69,10 +73,10 @@ public class PlayerMovement : MonoBehaviour
         float angle = Mathf.SmoothDampAngle(transform.rotation.eulerAngles.z, _rotationTargetScale, ref r, _rotationTime);
         transform.rotation = Quaternion.Euler(new(0,0,angle));
 
-        _speed = _maxSpeed / (1 + (_shipTemperatureController.currentTemperature / _shipTemperatureController.maxTemperature));
-        _rotationTime = _minRotationTime * (1.1f + (_shipTemperatureController.currentTemperature / _shipTemperatureController.maxTemperature));
+        _speed = _maxSpeed / (1 + (_shipTemperatureController.CurrentTemperature / _shipTemperatureController.MaxTemperature));
+        _rotationTime = _minRotationTime * (1.1f + (_shipTemperatureController.CurrentTemperature / _shipTemperatureController.MaxTemperature));
 
-        if (_shipTemperatureController.currentTemperature >= _shipTemperatureController.maxTemperature)
+        if (_shipTemperatureController.CurrentTemperature >= _shipTemperatureController.MaxTemperature)
         {
             if (!_animator.GetBool("gameOver")) PlayDestroyAnimation();
         }
@@ -126,7 +130,8 @@ public class PlayerMovement : MonoBehaviour
 
     public void PlayExplosionAnimation() 
     {
-        _audioManager.PlayOneShot(_explosionSound, 0.9f, 1.3f, 1);
+        _audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.3f);
+        _audioSource.PlayOneShot(_explosionSound);
         Animator explosionAnim = Instantiate(_explosionAnimator, new Vector3(transform.position.x, transform.position.y + 2.5f, transform.position.z), Quaternion.identity);
         explosionAnim.SetTrigger("explosion");
         OnPlayerKilled?.Invoke();

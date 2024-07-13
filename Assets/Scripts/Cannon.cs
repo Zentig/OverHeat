@@ -9,6 +9,8 @@ public class Cannon : MonoBehaviour
     [SerializeField] private GameManager _gameManager;  
     [SerializeField] private AudioManager _audioManager;
     [SerializeField] private AudioClip _shootSound;
+    [SerializeField] private float _minPitch = 0.8f;
+    [SerializeField] private float _maxPitch = 1.2f;
     [SerializeField] private Bullet _bulletPrefab;
     [SerializeField] private Transform _spawnBulletPos;
     [SerializeField] private float _shootTime;
@@ -34,23 +36,26 @@ public class Cannon : MonoBehaviour
         _gameManager.OnChangePauseState += HandlePauseState;
         _pauseState = false;
 
-        _bulletPool = new GameObjectPool<Bullet>(BulletPreloadAction, (x) => _audioManager.PlayOneShot(_shootSound, 0.5f, 0.9f, 0.35f), (x) => {         
+        _bulletPool = new GameObjectPool<Bullet>(BulletPreloadAction, (x) => {
+            x.PlayShootSound(_shootSound, _minPitch, _maxPitch);
+        }, (x) => {         
                 x.OnDestroyed += _bulletPool.Return;
                 _particlePool.Get(x.transform.position);
             },
             100);
         _bulletPool.StartPreload();
 
-        _particlePool = new GameObjectPool<BulletParticle>(ParticlePreloadAction, null, null/*(x) => _audioManager.PlayOneShot(_particleSound, 0.7f, 1.1f)*/, 100);    
+        _particlePool = new GameObjectPool<BulletParticle>(ParticlePreloadAction, null, null, 100);    
         _particlePool.StartPreload();
     }
 
     private Bullet BulletPreloadAction()
     {
-        var obj = Instantiate(_bulletPrefab, _bulletStorage);
-        obj.OnDestroyed += _bulletPool.Return;
-        obj.Init(); 
-        return obj;
+        var bullet = Instantiate(_bulletPrefab, _bulletStorage);
+        bullet.OnDestroyed += _bulletPool.Return;
+        _gameManager.OnChangePauseState += bullet.HandlePauseState;
+        bullet.Init(); 
+        return bullet;
     }
 
     private BulletParticle ParticlePreloadAction()
@@ -62,7 +67,7 @@ public class Cannon : MonoBehaviour
 
     private void HandlePauseState(bool pauseState) 
     {
-        _bulletStorage.gameObject.SetActive(!pauseState);
+        // _bulletStorage.gameObject.SetActive(!pauseState);
         _pauseState = pauseState;
     }
 
@@ -118,9 +123,10 @@ public class Cannon : MonoBehaviour
 
     void OnDestroy() 
     {
-        foreach (var item in _bulletPool.PoolQueue)
+        foreach (var bullet in _bulletPool.PoolQueue)
         {
-            item.OnDestroyed -= _bulletPool.Return;
+            bullet.OnDestroyed -= _bulletPool.Return;
+            _gameManager.OnChangePauseState -= bullet.HandlePauseState;
         }
         foreach (var item in _particlePool.PoolQueue)
         {
