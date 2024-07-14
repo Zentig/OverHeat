@@ -84,4 +84,8 @@ public class AudioManager : MonoBehaviour, IDataPersistence
         _musicSource.volume = volume;
         OnMusicVolumeChanged?.Invoke(volume);
     }
+
+    public void MuteSFX() => SetSFXVolumeManually(0);
+
+    public void MuteMusic() => SetMusicVolumeManually(0);
 }

@@ -9,25 +9,17 @@ public class Bullet : MonoBehaviour
     [SerializeField] private int _damage;
     [SerializeField] private float _lifetime = 4f;
     public event Action<Bullet> OnDestroyed;
-    private AudioSource _audioSource;
     private Rigidbody2D _rb;
     private float _timePassed = 0;
     private bool _isDestroyed = false;
     private Vector2 _frozenVelocity;
     private float _frozenGravityScale;
     private bool _isGamePaused;
-    private AudioManager _audioManager;
 
-    public void Init() 
-    {
-        _rb = GetComponent<Rigidbody2D>();
-        _audioSource = GetComponent<AudioSource>();
-        _audioManager = ServicesStorage.Instance.Get<AudioManager>();
-    }
+    public void Init() => _rb = GetComponent<Rigidbody2D>();
 
     public void OnShoot() 
     {
-        _audioSource.volume = _audioManager.GetCurrentSFXVolume();
         AddForceToRigidbody();
         _isDestroyed = false;
         _timePassed = 0;
@@ -81,11 +73,5 @@ public class Bullet : MonoBehaviour
             _rb.velocity = _frozenVelocity;
             _rb.gravityScale = _frozenGravityScale;
         }
-    }
-
-    public void PlayShootSound(AudioClip sound, float minPitch, float maxPitch) 
-    {
-        _audioSource.pitch = UnityEngine.Random.Range(minPitch, maxPitch);
-        _audioSource.PlayOneShot(sound);
     }
 }

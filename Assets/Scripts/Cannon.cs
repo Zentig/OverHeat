@@ -5,12 +5,16 @@ using UnityEngine;
 
 public class Cannon : MonoBehaviour
 {
+    [Header("Managers")]
     [SerializeField] private EnemySpawner _enemySpawner;    
     [SerializeField] private GameManager _gameManager;  
     [SerializeField] private AudioManager _audioManager;
+    [Header("Sounds")]
+    [SerializeField] private BulletSound _prefab;
     [SerializeField] private AudioClip _shootSound;
     [SerializeField] private float _minPitch = 0.8f;
     [SerializeField] private float _maxPitch = 1.2f;
+    [Header("Shoot Configuration")]
     [SerializeField] private Bullet _bulletPrefab;
     [SerializeField] private Transform _spawnBulletPos;
     [SerializeField] private float _shootTime;
@@ -18,15 +22,17 @@ public class Cannon : MonoBehaviour
     [SerializeField] private float _minZRotation;
     [SerializeField] private float _maxZRotation;
     [SerializeField] private Transform _bulletStorage;
+    [Header("Particles")]
+    [SerializeField] private BulletParticle _particlePrefab;
+    [SerializeField] private Transform _particleParent;
+    [SerializeField] private AudioClip _particleSound;
     private Enemy _nearestEnemy;
     private float _timePassed;
     private bool _pauseState;
     private GameObjectPool<Bullet> _bulletPool;
     private GameObjectPool<BulletParticle> _particlePool;
-    [Header("Particles")]
-    [SerializeField] private BulletParticle _particlePrefab;
-    [SerializeField] private Transform _particleParent;
-    [SerializeField] private AudioClip _particleSound;
+    private GameObjectPool<BulletSound> _soundPool;
+    private Transform _soundParent;
 
     private void Start() 
     {
@@ -36,10 +42,24 @@ public class Cannon : MonoBehaviour
         _gameManager.OnChangePauseState += HandlePauseState;
         _pauseState = false;
 
+        _soundParent = new GameObject("BulletSoundPool").transform;
+        _soundPool = new GameObjectPool<BulletSound>(
+            () => {
+                var x = Instantiate(_prefab, _soundParent); 
+                x.Init();
+                x.OnDestroyed += _soundPool.Return;
+                _gameManager.OnChangePauseState += x.HandlePauseState;
+                return x;
+            },
+            (x) => { x.PlayShootSound(_audioManager.GetCurrentSFXVolume(), _shootSound, _minPitch, _maxPitch); },
+            null, 100
+        );
+        _soundPool.StartPreload();
+
         _bulletPool = new GameObjectPool<Bullet>(BulletPreloadAction, (x) => {
-            x.PlayShootSound(_shootSound, _minPitch, _maxPitch);
+            _soundPool.Get();
         }, (x) => {         
-                x.OnDestroyed += _bulletPool.Return;
+                // x.OnDestroyed += _bulletPool.Return;
                 _particlePool.Get(x.transform.position);
             },
             100);
@@ -65,11 +85,7 @@ public class Cannon : MonoBehaviour
         return obj;
     }
 
-    private void HandlePauseState(bool pauseState) 
-    {
-        // _bulletStorage.gameObject.SetActive(!pauseState);
-        _pauseState = pauseState;
-    }
+    private void HandlePauseState(bool pauseState) => _pauseState = pauseState;
 
     private void Update() 
     {
@@ -128,9 +144,14 @@ public class Cannon : MonoBehaviour
             bullet.OnDestroyed -= _bulletPool.Return;
             _gameManager.OnChangePauseState -= bullet.HandlePauseState;
         }
-        foreach (var item in _particlePool.PoolQueue)
+        foreach (var particle in _particlePool.PoolQueue)
         {
-            item.OnDestroyed -= _particlePool.Return;
+            particle.OnDestroyed -= _particlePool.Return;
+        }
+        foreach (var sound in _soundPool.PoolQueue)
+        {
+            sound.OnDestroyed -= _soundPool.Return;
+            _gameManager.OnChangePauseState -= sound.HandlePauseState;
         }
     }
 

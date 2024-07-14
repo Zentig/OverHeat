@@ -6,7 +6,11 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] private Animator _gameOverAnimator;
     [SerializeField] private Button _inverseDirectionButton;
+    [Header("Pause Settings")]
     [SerializeField] private Button _pauseButton;
+    [SerializeField] private Sprite _pauseButtonOn;
+    [SerializeField] private Sprite _pauseButtonOff;
+    [SerializeField] private GameObject _pausePanel;
     public event Action<bool> OnChangePauseState;
     public event Action OnGameOver;
     public bool IsPaused { get; private set; }
@@ -15,7 +19,7 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         ServicesStorage.Instance.Register(this);
-        OnChangePauseState += (state) => _inverseDirectionButton.interactable = !state;
+        _pauseButton.onClick.AddListener(() => HandlePressedPauseButton());
         OnGameOver += () => {
             _gameOverAnimator.SetBool("gameOver", true);
             ChangePauseMode(true);
@@ -24,7 +28,20 @@ public class GameManager : MonoBehaviour
         };
     }
 
-    void OnDestroy() => OnGameOver = null;
+    void HandlePressedPauseButton() 
+    {
+        IsPaused = !IsPaused;
+        _inverseDirectionButton.interactable = !IsPaused;
+        _pauseButton.image.sprite = IsPaused ? _pauseButtonOn : _pauseButtonOff;
+        _pausePanel?.SetActive(IsPaused);
+        ChangePauseMode(IsPaused);
+    }
+
+    void OnDestroy()
+    {
+        _pauseButton.onClick.RemoveAllListeners();
+        OnGameOver = null;
+    }
 
     void Start() 
     {
