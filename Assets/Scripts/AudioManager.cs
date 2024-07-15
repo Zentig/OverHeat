@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,9 +18,10 @@ public class AudioManager : MonoBehaviour, IDataPersistence
     private float _currentSFXVolume;
     private float _currentMusicVolume;
 
+    private void OnEnable() { ServicesStorage.Instance.Register(this); }
+
     private void Start()
     {
-        ServicesStorage.Instance.Register(this);
         _currentIndex = UnityEngine.Random.Range(0, _tracks.Count - 1);
         _musicSource.PlayOneShot(_tracks[_currentIndex]);
 

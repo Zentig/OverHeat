@@ -11,12 +11,21 @@ public class GameOverMenu : MonoBehaviour
     private Animator _animator;
     private ScoreManager _scoreManager;
 
+    private void OnEnable() 
+    {
+        ServicesStorage.Instance.Register(this);
+    }
+
     private void Start()
     {
         _animator = GetComponent<Animator>();
-        ServicesStorage.Instance.Register(_animator);
         _scoreManager = ServicesStorage.Instance.Get<ScoreManager>();
         _scoreManager.OnScoreChanged += HandleScoreChanged;
+    }
+
+    public void PlayGameOver() 
+    {
+        _animator.SetBool("gameOver", true);
     }
 
     private void HandleScoreChanged(int score)

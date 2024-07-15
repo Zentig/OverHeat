@@ -15,7 +15,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float _rotationTime;
     [SerializeField] private float _minRotationTime;
     [SerializeField] private Animator _explosionAnimator;
-    [SerializeField] private AudioClip _explosionSound;
     [SerializeField] private ShipTemperatureController _shipTemperatureController;
     private Animator _animator;
     private Health _healthReference;
@@ -23,15 +22,11 @@ public class PlayerMovement : MonoBehaviour
     private Vector2 _currentDirection;
     private bool _isPaused;
     private GameManager _gameManager;
-    private AudioManager _audioManager;
-    private AudioSource _audioSource;
-    private float _sfxVolume;
 
     float r;
-    private async void Start() 
+    private void Start() 
     {
         _rb = GetComponent<Rigidbody2D>();
-        _audioSource = GetComponent<AudioSource>();
         _animator = GetComponent<Animator>();
         SetDirection(IsGoingUp);
         _healthReference = GetComponent<Health>();
@@ -39,9 +34,6 @@ public class PlayerMovement : MonoBehaviour
         _gameManager = ServicesStorage.Instance.Get<GameManager>();
         _gameManager.OnChangePauseState += HandlePauseState;
         OnPlayerKilled += _gameManager.GameOver;
-        await Task.Delay(1);
-        _audioManager = ServicesStorage.Instance.Get<AudioManager>();
-        _audioManager.OnSFXVolumeChanged += (value) => _audioSource.volume = value;
     }
 
     private void HandlePauseState(bool pauseState) 
@@ -130,8 +122,6 @@ public class PlayerMovement : MonoBehaviour
 
     public void PlayExplosionAnimation() 
     {
-        _audioSource.pitch = UnityEngine.Random.Range(0.9f, 1.3f);
-        _audioSource.PlayOneShot(_explosionSound);
         Animator explosionAnim = Instantiate(_explosionAnimator, new Vector3(transform.position.x, transform.position.y + 2.5f, transform.position.z), Quaternion.identity);
         explosionAnim.SetTrigger("explosion");
         OnPlayerKilled?.Invoke();
