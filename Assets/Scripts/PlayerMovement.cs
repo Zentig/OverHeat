@@ -7,17 +7,13 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerMovement : MonoBehaviour
 {
-    public event Action OnPlayerKilled;
     [field:SerializeField] public bool IsGoingUp { get; private set; }
     [SerializeField] private float _speed;
     [SerializeField] private float _maxSpeed;
     [SerializeField] private float _rotationTargetScale;
     [SerializeField] private float _rotationTime;
     [SerializeField] private float _minRotationTime;
-    [SerializeField] private Animator _explosionAnimator;
-    [SerializeField] private ShipTemperatureController _shipTemperatureController;
-    private Animator _animator;
-    private Health _healthReference;
+    private ShipTemperatureController _shipTemperatureController;
     private Rigidbody2D _rb;
     private Vector2 _currentDirection;
     private bool _isPaused;
@@ -27,13 +23,10 @@ public class PlayerMovement : MonoBehaviour
     private void Start() 
     {
         _rb = GetComponent<Rigidbody2D>();
-        _animator = GetComponent<Animator>();
-        SetDirection(IsGoingUp);
-        _healthReference = GetComponent<Health>();
-        _healthReference.OnHPChanged += HandleChangedHP;
+        _shipTemperatureController = GetComponent<ShipTemperatureController>();
         _gameManager = ServicesStorage.Instance.Get<GameManager>();
         _gameManager.OnChangePauseState += HandlePauseState;
-        OnPlayerKilled += _gameManager.GameOver;
+        SetDirection(IsGoingUp);
     }
 
     private void HandlePauseState(bool pauseState) 
@@ -42,11 +35,7 @@ public class PlayerMovement : MonoBehaviour
         _rb.velocity = pauseState ? new(0,0) : _currentDirection * _speed;
     }
 
-    private void OnDestroy() 
-    {
-        _healthReference.OnHPChanged -= HandleChangedHP;
-        _gameManager.OnChangePauseState -= HandlePauseState;
-    }
+    private void OnDestroy() => _gameManager.OnChangePauseState -= HandlePauseState;
 
     public void InverseMovementDirection()
     {
@@ -66,12 +55,7 @@ public class PlayerMovement : MonoBehaviour
         transform.rotation = Quaternion.Euler(new(0,0,angle));
 
         _speed = _maxSpeed / (1 + (_shipTemperatureController.CurrentTemperature / _shipTemperatureController.MaxTemperature));
-        _rotationTime = _minRotationTime * (1.1f + (_shipTemperatureController.CurrentTemperature / _shipTemperatureController.MaxTemperature));
-
-        if (_shipTemperatureController.CurrentTemperature >= _shipTemperatureController.MaxTemperature)
-        {
-            if (!_animator.GetBool("gameOver")) PlayDestroyAnimation();
-        }
+        _rotationTime = _minRotationTime * (1.1f + (_shipTemperatureController.CurrentTemperature / _shipTemperatureController.MaxTemperature));    
     }
 
     private void SetDirection(bool direction) 
@@ -91,41 +75,6 @@ public class PlayerMovement : MonoBehaviour
         }
 
         _rb.velocity = _currentDirection * _speed;
-    }
-
-    private void OnTriggerEnter2D(Collider2D other) 
-    {
-        if (other.gameObject.TryGetComponent(out Enemy enemy) && !enemy.HadSwitchedToDestroyedMode) 
-        {
-            _healthReference.HP -= enemy.Damage;
-            enemy.SwitchToDestroyAnimationMode();
-        }
-        if (other.gameObject.tag == "Death") 
-        {
-            PlayExplosionAnimation();
-        }
-    }
-
-    private void HandleChangedHP(int newHP) 
-    {
-        if (newHP <= 0) 
-        {
-            Debug.Log("Game over!");
-            OnPlayerKilled?.Invoke();
-        }
-    }
-
-    public void PlayDestroyAnimation() 
-    {
-        _animator.SetBool("gameOver", true);
-    }
-
-    public void PlayExplosionAnimation() 
-    {
-        Animator explosionAnim = Instantiate(_explosionAnimator, new Vector3(transform.position.x, transform.position.y + 2.5f, transform.position.z), Quaternion.identity);
-        explosionAnim.SetTrigger("explosion");
-        OnPlayerKilled?.Invoke();
-        gameObject.SetActive(false);
     }
 }
 

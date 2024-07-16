@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.SceneManagement;
+using System;
 
 public class SaveLoadManager : MonoBehaviour
 {
     [Header("File Storage Config")] 
     [SerializeField] private string _fileName = "data.json";
-    [SerializeField] private bool _useEncryption = true;
+    [SerializeField] private bool _useEncryption = false;
     private FileDataHandler _fileDataHandler;
     private GameData _gameData;
     private List<IDataPersistence> _dataPersistenceObjects;
@@ -16,7 +17,6 @@ public class SaveLoadManager : MonoBehaviour
     private void Awake() 
     {
         ServicesStorage.Instance.Register(this);
-        DontDestroyOnLoad(gameObject);
         _fileDataHandler = new FileDataHandler(Application.persistentDataPath, _fileName, _useEncryption);
     }
 
@@ -75,11 +75,18 @@ public class GameData
     public int BestScore;
     public float SfxVolume;
     public float MusicVolume;
+    public Dictionary<UpgradeTypes, int> Upgrades;
 
     public GameData()
     {
         BestScore = 0;
         SfxVolume = 1;
         MusicVolume = 1;
+        Upgrades = new Dictionary<UpgradeTypes, int>();
+
+        foreach (UpgradeTypes key in Enum.GetValues(typeof(UpgradeTypes))) 
+        {
+            Upgrades.Add(key, default);
+        }
     }
 }

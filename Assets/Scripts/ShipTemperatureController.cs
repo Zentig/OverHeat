@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class ShipTemperatureController : MonoBehaviour
 {
+    public event Action OnOverheat;
     [field:SerializeField] public float IncreaseRate { get; private set; } = 2f; 
     [field:SerializeField] public float DecreaseRate { get; private set; } = 0.5f; 
     [field:SerializeField] public float MinTemperature { get; private set; } = 0f;  
@@ -11,7 +12,13 @@ public class ShipTemperatureController : MonoBehaviour
     [SerializeField] private ScreenRedEffect _screenRedEffect;
     private bool _isPaused = false;
     private GameManager _gm;
-    private Rigidbody2D _rb; 
+    private Rigidbody2D _rb;
+    private bool _isOverheatInvoked;
+
+    private void OnEnable() 
+    {
+        ServicesStorage.Instance.Register(this);
+    }
 
     private void Start()
     {
@@ -27,10 +34,7 @@ public class ShipTemperatureController : MonoBehaviour
         _gm.OnGameOver -= HandleGameOver;
     }
 
-    private void HandlePauseState(bool state) 
-    {
-        _isPaused = state;
-    }
+    private void HandlePauseState(bool state) => _isPaused = state;
 
     private void HandleGameOver() => CurrentTemperature = 0;
 
@@ -39,14 +43,19 @@ public class ShipTemperatureController : MonoBehaviour
         if (_isPaused) return;
 
         _screenRedEffect.UpdateOverlayTransparency(CurrentTemperature);
-
-        if (_rb.velocity.y > 0)
-        {
-            IncreaseTemperature();
+        if (CurrentTemperature >= MaxTemperature && !_isOverheatInvoked) { 
+            OnOverheat?.Invoke(); 
+            _isOverheatInvoked = true;
         }
-        else if (_rb.velocity.y < 0)
+
+        switch (_rb.velocity.y)
         {
-            DecreaseTemperature();
+            case > 0:
+                IncreaseTemperature();
+                break;
+            case < 0:
+                DecreaseTemperature();
+                break;
         }
     }
 
@@ -61,6 +70,8 @@ public class ShipTemperatureController : MonoBehaviour
     {
         CurrentTemperature -= DecreaseRate * Time.deltaTime;
         CurrentTemperature = Mathf.Clamp(CurrentTemperature, MinTemperature, MaxTemperature);
-      //  Debug.Log("Temperature decreased: " + currentTemperature);
+       // Debug.Log("Temperature decreased: " + currentTemperature);
     }
+
+    public void AddTemperature(float value) => CurrentTemperature += value;
 }

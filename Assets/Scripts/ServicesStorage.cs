@@ -9,11 +9,7 @@ public class ServicesStorage : MonoBehaviour
     public static ServicesStorage Instance { get; private set; }
     private readonly Dictionary<Type, object> Services = new Dictionary<Type, object>();
 
-    private void Awake() 
-    {
-        Instance = this;
-        DontDestroyOnLoad(this);
-    }
+    private void Awake() => Instance = this;
 
     public void Register<T>(T serviceInstance) 
     {
