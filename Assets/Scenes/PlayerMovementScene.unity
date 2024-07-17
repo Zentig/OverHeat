@@ -4050,14 +4050,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1908286326}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.483, y: -0.38, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: 0.003066556, w: 0.99999535}
+  m_LocalPosition: {x: 0.48304147, y: -0.38115528, z: 0}
   m_LocalScale: {x: 1.5532, y: 1.5532, z: 1.5532}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 452495776}
   m_Father: {fileID: 1153331202}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0.351}
 --- !u!114 &1908286328
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4073,17 +4073,17 @@ MonoBehaviour:
   <UpgradeLevel>k__BackingField: 0
   <MaxUpgradeLevel>k__BackingField: 5
   <UpgradeType>k__BackingField: 0
-  _temperatureAddValue: 2.5
+  _temperatureAddValue: 0.1
   _prefab: {fileID: 8299671367012391881, guid: cca04d56b853534a98fe4ac86b862366, type: 3}
   _shootSound: {fileID: 8300000, guid: a5213f0a76e174f0f94a1b931dbe523a, type: 3}
   _minPitch: 0.8
   _maxPitch: 1.2
   _bulletPrefab: {fileID: 951416460815001948, guid: 96daabceb83006a65a9bcae7acbe4757, type: 3}
   _spawnBulletPos: {fileID: 452495776}
-  _shootTime: 0.8
+  _shootTime: 0.1
   _distanceThreshold: 20
-  _minZRotation: 0
-  _maxZRotation: 360
+  _minZRotation: -30
+  _maxZRotation: 30
   _bulletStorage: {fileID: 1792656529}
   _particlePrefab: {fileID: 619609371577100898, guid: 24c99750db868df45acc8dca05e5c576, type: 3}
   _particleParent: {fileID: 362077199}

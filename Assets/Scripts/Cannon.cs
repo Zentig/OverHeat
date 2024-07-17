@@ -116,7 +116,7 @@ public class Cannon : MonoBehaviour, IUpgradable
         _timePassed += Time.deltaTime;
         if (_timePassed >= _shootTime) 
         {
-            Shoot();
+            if (_nearestEnemy != null && _nearestEnemy.isActiveAndEnabled) Shoot();
             _timePassed = 0;
         } 
     }
@@ -127,26 +127,26 @@ public class Cannon : MonoBehaviour, IUpgradable
 
         (Enemy, float?) nearestEnemy = (default, null);
         Vector3 cannonPosition = transform.position;
+        float angleDifference = 0;
 
         foreach (var enemy in _enemySpawner.EnemyPool.ActiveObjects)
         {
+            if (enemy == null) continue;
+
             Vector3 enemyPosition = enemy.transform.position;
-            float distanceToNextEnemy = Mathf.Sqrt((enemyPosition.x - cannonPosition.x)*(enemyPosition.x - cannonPosition.x) + 
-                                                   (enemyPosition.y - cannonPosition.y)*(enemyPosition.y - cannonPosition.y));
-            if ((nearestEnemy.Item2 == null || distanceToNextEnemy < nearestEnemy.Item2) && distanceToNextEnemy < _distanceThreshold)  
+            float distanceToNextEnemy = Vector2.Distance(enemyPosition, cannonPosition);
+            angleDifference = GetAngleBetweenTwoPositions(transform, enemy.transform);
+
+            if ((nearestEnemy.Item2 == null || distanceToNextEnemy < nearestEnemy.Item2) && distanceToNextEnemy < _distanceThreshold && angleDifference > _minZRotation && angleDifference < _maxZRotation)  
             {
                 nearestEnemy = (enemy,distanceToNextEnemy);
             }
         }
         _nearestEnemy = nearestEnemy.Item1;
-        
-        if (nearestEnemy.Item2 == null) return;
-
-        // transform.rotation = Quaternion.Euler(0,0,Mathf.Clamp(Mathf.Atan2(_nearestEnemy.transform.position.y - transform.position.y, 
-        //                                     _nearestEnemy.transform.position.x - transform.position.x)*Mathf.Rad2Deg,_minZRotation,_maxZRotation));
-        transform.rotation = Quaternion.Euler(0,0,Mathf.Atan2(_nearestEnemy.transform.position.y - transform.position.y, 
-                                            _nearestEnemy.transform.position.x - transform.position.x)*Mathf.Rad2Deg);
+        transform.rotation = Quaternion.Euler(0, 0, angleDifference);
     }
+
+    private float GetAngleBetweenTwoPositions(Transform first, Transform second) => Mathf.Atan2(second.transform.position.y - first.position.y, second.transform.position.x - first.position.x) * Mathf.Rad2Deg;
 
     private void Shoot() 
     {
@@ -181,5 +181,9 @@ public class Cannon : MonoBehaviour, IUpgradable
     private void OnDrawGizmos() 
     {
         Gizmos.DrawWireSphere(transform.position, _distanceThreshold);
+        // Gizmos.color = Color.red;
+        // Gizmos.DrawLine(transform.position, transform.right);
+        Gizmos.color = Color.blue;
+        if (_nearestEnemy != null && _nearestEnemy.isActiveAndEnabled) Gizmos.DrawLine(_nearestEnemy.transform.position, transform.position);
     }
 }

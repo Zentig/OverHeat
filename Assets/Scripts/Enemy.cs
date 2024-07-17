@@ -46,7 +46,7 @@ public class Enemy : MonoBehaviour
 
     private void HandleChangedHP(int hp) 
     {
-        if (hp < 0) 
+        if (hp <= 0) 
         {
             SwitchToDestroyAnimationMode();
         }
@@ -88,9 +88,11 @@ public class Enemy : MonoBehaviour
         transform.rotation = Quaternion.identity;
         OnDestroyed?.Invoke(this);
     }
+    
     public void TakeDamage(int damage)
     {
         _health.HP -= damage;
     }
+
     private void SetAnimatorSpeed(int value) => _animator.speed = value;
 }
