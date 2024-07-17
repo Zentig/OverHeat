@@ -48,6 +48,7 @@ public class Player : MonoBehaviour
         {
             Debug.Log("Game over!");
             OnPlayerKilled?.Invoke();
+            _animator.speed = 0;
         }
     }
 

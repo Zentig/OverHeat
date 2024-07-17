@@ -3,8 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Cannon : MonoBehaviour
+public class Cannon : MonoBehaviour, IUpgradable
 {
+    [field:SerializeField] public int UpgradeLevel { get; set; }
+    [field:SerializeField] public int MaxUpgradeLevel { get; set; }
+    [field:SerializeField] public UpgradeTypes UpgradeType { get; set; }
     [Header("Temperature")]
     [SerializeField] private float _temperatureAddValue;
     [Header("Sounds")]
@@ -37,13 +40,20 @@ public class Cannon : MonoBehaviour
     private AudioManager _audioManager;
     private UpgradesManager _upgradesManager;
     private ShipTemperatureController _shipTemperatureController;
-    
+
+    private int GetCurrentUpgradeLevel() => UpgradeLevel;
+
+    private void OnEnable() 
+    {
+        _upgradesManager = ServicesStorage.Instance.Get<UpgradesManager>();
+        _upgradesManager.OnUpgraded += HandleUpgraded;
+    }
+
     private void Start() 
     {
         _enemySpawner = ServicesStorage.Instance.Get<EnemySpawner>();
         _gameManager = ServicesStorage.Instance.Get<GameManager>();
         _audioManager = ServicesStorage.Instance.Get<AudioManager>();
-        _upgradesManager = ServicesStorage.Instance.Get<UpgradesManager>();
         _shipTemperatureController = ServicesStorage.Instance.Get<ShipTemperatureController>();
         _gameManager.OnChangePauseState += HandlePauseState;
         _pauseState = false;
@@ -72,6 +82,11 @@ public class Cannon : MonoBehaviour
 
         _particlePool = new GameObjectPool<BulletParticle>(ParticlePreloadAction, null, null, 100);    
         _particlePool.StartPreload();
+    }
+
+    private void HandleUpgraded(UpgradeTypes type, int level)
+    {
+        if (type == UpgradeType) UpgradeLevel = level;
     }
 
     private Bullet BulletPreloadAction()
@@ -127,22 +142,22 @@ public class Cannon : MonoBehaviour
         
         if (nearestEnemy.Item2 == null) return;
 
-        transform.rotation = Quaternion.Euler(0,0,Mathf.Clamp(Mathf.Atan2(_nearestEnemy.transform.position.y - transform.position.y, 
-                                            _nearestEnemy.transform.position.x - transform.position.x)*Mathf.Rad2Deg,_minZRotation,_maxZRotation));
+        // transform.rotation = Quaternion.Euler(0,0,Mathf.Clamp(Mathf.Atan2(_nearestEnemy.transform.position.y - transform.position.y, 
+        //                                     _nearestEnemy.transform.position.x - transform.position.x)*Mathf.Rad2Deg,_minZRotation,_maxZRotation));
+        transform.rotation = Quaternion.Euler(0,0,Mathf.Atan2(_nearestEnemy.transform.position.y - transform.position.y, 
+                                            _nearestEnemy.transform.position.x - transform.position.x)*Mathf.Rad2Deg);
     }
 
     private void Shoot() 
     {
         SpawnBullet(_spawnBulletPos.position, transform.rotation);
-        _shipTemperatureController.AddTemperature(_temperatureAddValue*(GetCannonUpgradeLevel()+1));
+        _shipTemperatureController.AddTemperature(_temperatureAddValue*(UpgradeLevel+1));
     }
-
-    private int GetCannonUpgradeLevel() => _upgradesManager.GetUpgradeLevel(UpgradeTypes.CannonLevel);
 
     public void SpawnBullet(Vector3 position, Quaternion rotation) 
     {
         var b = _bulletPool.Get(position, rotation);
-        b.OnShoot();
+        b.OnShoot(UpgradeLevel);
     }
 
     void OnDestroy() 

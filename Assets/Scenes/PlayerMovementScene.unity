@@ -4070,7 +4070,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 432099e5bbc6e170193bf8c57bed55d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _temperatureAddValue: 5
+  <UpgradeLevel>k__BackingField: 0
+  <MaxUpgradeLevel>k__BackingField: 5
+  <UpgradeType>k__BackingField: 0
+  _temperatureAddValue: 2.5
   _prefab: {fileID: 8299671367012391881, guid: cca04d56b853534a98fe4ac86b862366, type: 3}
   _shootSound: {fileID: 8300000, guid: a5213f0a76e174f0f94a1b931dbe523a, type: 3}
   _minPitch: 0.8

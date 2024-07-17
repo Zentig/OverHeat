@@ -163,7 +163,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _bulletSpeed: 40
-  _damage: 8
+  _baseDamage: 5
   _lifetime: 4
 --- !u!82 &3121633244697624114
 AudioSource:

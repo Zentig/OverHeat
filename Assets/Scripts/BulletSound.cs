@@ -10,7 +10,10 @@ public class BulletSound : MonoBehaviour
     private bool _isGamePaused;
     private float _timePassed = 0;
 
-    public void Init() => _audioSrc = GetComponent<AudioSource>();
+    public void Init()
+    {
+        _audioSrc = GetComponent<AudioSource>();
+    }
 
     public void ResetProperties() => _timePassed = 0;
 

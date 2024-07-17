@@ -6,7 +6,7 @@ using UnityEngine;
 public class Bullet : MonoBehaviour
 {
     [SerializeField] private float _bulletSpeed;
-    [SerializeField] private int _damage;
+    [SerializeField] private int _baseDamage;
     [SerializeField] private float _lifetime = 4f;
     public event Action<Bullet> OnDestroyed;
     private Rigidbody2D _rb;
@@ -15,11 +15,13 @@ public class Bullet : MonoBehaviour
     private Vector2 _frozenVelocity;
     private float _frozenGravityScale;
     private bool _isGamePaused;
+    private int _damage;
 
     public void Init() => _rb = GetComponent<Rigidbody2D>();
 
-    public void OnShoot() 
+    public void OnShoot(int upgradeLevel) 
     {
+        _damage = _baseDamage * (upgradeLevel + 1);
         AddForceToRigidbody();
         _isDestroyed = false;
         _timePassed = 0;

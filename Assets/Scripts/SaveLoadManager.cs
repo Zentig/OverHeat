@@ -69,7 +69,7 @@ public class SaveLoadManager : MonoBehaviour
     }
 }
 
-[System.Serializable]
+[Serializable]
 public class GameData 
 {
     public int BestScore;
