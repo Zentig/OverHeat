@@ -15,13 +15,18 @@ public class Bullet : MonoBehaviour
     private Vector2 _frozenVelocity;
     private float _frozenGravityScale;
     private bool _isGamePaused;
-    private int _damage;
-
-    public void Init() => _rb = GetComponent<Rigidbody2D>();
+    private float _damage;
+    private Func<float, int, float> _calculateDamageFunc;
+    
+    public void Init(GunConfig config)
+    {
+        _rb = GetComponent<Rigidbody2D>();
+        _calculateDamageFunc = config.CalculateDamage;
+    }
 
     public void OnShoot(int upgradeLevel) 
     {
-        _damage = _baseDamage * (upgradeLevel + 1);
+        _damage = _calculateDamageFunc(_baseDamage, upgradeLevel);
         AddForceToRigidbody();
         _isDestroyed = false;
         _timePassed = 0;

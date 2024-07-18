@@ -8,6 +8,7 @@ public class Cannon : MonoBehaviour, IUpgradable
     [field:SerializeField] public int UpgradeLevel { get; set; }
     [field:SerializeField] public int MaxUpgradeLevel { get; set; }
     [field:SerializeField] public UpgradeTypes UpgradeType { get; set; }
+    [SerializeField] private GunConfig _config;
     [Header("Temperature")]
     [SerializeField] private float _temperatureAddValue;
     [Header("Sounds")]
@@ -16,9 +17,9 @@ public class Cannon : MonoBehaviour, IUpgradable
     [SerializeField] private float _minPitch = 0.8f;
     [SerializeField] private float _maxPitch = 1.2f;
     [Header("Shoot Configuration")]
+    [SerializeField] private float _baseCooldown;
     [SerializeField] private Bullet _bulletPrefab;
     [SerializeField] private Transform _spawnBulletPos;
-    [SerializeField] private float _shootTime;
     [SerializeField] private float _distanceThreshold;
     [SerializeField] private float _minZRotation;
     [SerializeField] private float _maxZRotation;
@@ -40,6 +41,8 @@ public class Cannon : MonoBehaviour, IUpgradable
     private AudioManager _audioManager;
     private UpgradesManager _upgradesManager;
     private ShipTemperatureController _shipTemperatureController;
+    private Func<float, int, float> _calculateCooldownFunc;
+    private float _cooldown;
 
     private int GetCurrentUpgradeLevel() => UpgradeLevel;
 
@@ -51,6 +54,9 @@ public class Cannon : MonoBehaviour, IUpgradable
 
     private void Start() 
     {
+        _calculateCooldownFunc ??= _config.CalculateCooldown;
+        _cooldown = _calculateCooldownFunc(_baseCooldown, UpgradeLevel);
+
         _enemySpawner = ServicesStorage.Instance.Get<EnemySpawner>();
         _gameManager = ServicesStorage.Instance.Get<GameManager>();
         _audioManager = ServicesStorage.Instance.Get<AudioManager>();
@@ -86,7 +92,12 @@ public class Cannon : MonoBehaviour, IUpgradable
 
     private void HandleUpgraded(UpgradeTypes type, int level)
     {
-        if (type == UpgradeType) UpgradeLevel = level;
+        if (type == UpgradeType) 
+        {
+            UpgradeLevel = level;
+            _calculateCooldownFunc ??= _config.CalculateCooldown;
+            _cooldown = _calculateCooldownFunc(_baseCooldown, UpgradeLevel);
+        }
     }
 
     private Bullet BulletPreloadAction()
@@ -94,7 +105,7 @@ public class Cannon : MonoBehaviour, IUpgradable
         var bullet = Instantiate(_bulletPrefab, _bulletStorage);
         bullet.OnDestroyed += _bulletPool.Return;
         _gameManager.OnChangePauseState += bullet.HandlePauseState;
-        bullet.Init(); 
+        bullet.Init(_config); 
         return bullet;
     }
 
@@ -114,7 +125,7 @@ public class Cannon : MonoBehaviour, IUpgradable
         Rotation();
 
         _timePassed += Time.deltaTime;
-        if (_timePassed >= _shootTime) 
+        if (_timePassed >= _cooldown) 
         {
             if (_nearestEnemy != null && _nearestEnemy.isActiveAndEnabled) Shoot();
             _timePassed = 0;

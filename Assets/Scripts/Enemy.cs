@@ -44,7 +44,7 @@ public class Enemy : MonoBehaviour
         _rb.velocity = !HadSwitchedToDestroyedMode && !_isGamePaused ? Vector2.left * _speed : new(0, 0);
     }
 
-    private void HandleChangedHP(int hp) 
+    private void HandleChangedHP(float hp) 
     {
         if (hp <= 0) 
         {
@@ -89,7 +89,7 @@ public class Enemy : MonoBehaviour
         OnDestroyed?.Invoke(this);
     }
     
-    public void TakeDamage(int damage)
+    public void TakeDamage(float damage)
     {
         _health.HP -= damage;
     }

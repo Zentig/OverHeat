@@ -42,7 +42,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void HandleChangedHP(int newHP) 
+    private void HandleChangedHP(float newHP) 
     {
         if (newHP <= 0) 
         {

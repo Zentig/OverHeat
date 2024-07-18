@@ -23,7 +23,9 @@ public class HealthUI : MonoBehaviour
         UpdateHPUI(_healthReference.HP);
     }
 
-    public void UpdateHPUI(int currentHP) 
+    private void UpdateHPUI(float currentHP) => UpdateHPUI((int)currentHP);
+
+    private void UpdateHPUI(int currentHP) 
     { 
         int activeImages = _pool.ActiveObjects.Count;
         
