@@ -7,6 +7,6 @@ public class EntryPointManager : MonoBehaviour
     private void Awake() 
     {
         DontDestroyOnLoad(this);
-        SceneManager.LoadScene(1);
+        //SceneManager.LoadScene(1);
     }
 }

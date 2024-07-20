@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class ShipTemperatureController : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class ShipTemperatureController : MonoBehaviour
     private GameManager _gm;
     private Rigidbody2D _rb;
     private bool _isOverheatInvoked;
+    private Player _playerReference;
 
     private void OnEnable() 
     {
@@ -22,6 +24,7 @@ public class ShipTemperatureController : MonoBehaviour
 
     private void Start()
     {
+        _playerReference = GetComponent<Player>();
         _rb = GetComponent<Rigidbody2D>(); 
         _gm = ServicesStorage.Instance.Get<GameManager>();
         _gm.OnChangePauseState += HandlePauseState;
@@ -61,7 +64,7 @@ public class ShipTemperatureController : MonoBehaviour
 
     void IncreaseTemperature()
     {
-        CurrentTemperature += IncreaseRate * Time.deltaTime;
+        CurrentTemperature += IncreaseRate * Time.deltaTime * _playerReference.TotalDamageTaken;
         CurrentTemperature = Mathf.Clamp(CurrentTemperature, MinTemperature, MaxTemperature);
        // Debug.Log("Temperature increased: " + currentTemperature);
     }
