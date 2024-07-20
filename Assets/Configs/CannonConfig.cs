@@ -4,5 +4,5 @@ using UnityEngine;
 public class CannonConfig : GunConfig
 {
     public override float CalculateCooldown(float baseCooldown, int upgradeLevel) => baseCooldown;
-    public override float CalculateDamage(float baseDamage, int upgradeLevel) => baseDamage * (upgradeLevel + 1);
+    public override float CalculateDamage(float baseDamage, int upgradeLevel) => baseDamage * upgradeLevel;
 }

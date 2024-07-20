@@ -44,8 +44,6 @@ public class Cannon : MonoBehaviour, IUpgradable
     private Func<float, int, float> _calculateCooldownFunc;
     private float _cooldown;
 
-    private int GetCurrentUpgradeLevel() => UpgradeLevel;
-
     private void OnEnable() 
     {
         _upgradesManager = ServicesStorage.Instance.Get<UpgradesManager>();
@@ -91,9 +89,15 @@ public class Cannon : MonoBehaviour, IUpgradable
     }
 
     private void HandleUpgraded(UpgradeTypes type, int level)
-    {
+    { 
         if (type == UpgradeType) 
         {
+            if (level <= 0) 
+            {
+                gameObject.SetActive(false);
+                Unsubscribe();
+                return;
+            }
             UpgradeLevel = level;
             _calculateCooldownFunc ??= _config.CalculateCooldown;
             _cooldown = _calculateCooldownFunc(_baseCooldown, UpgradeLevel);
@@ -134,13 +138,13 @@ public class Cannon : MonoBehaviour, IUpgradable
 
     private void Rotation() 
     {
-        if (_enemySpawner.EnemyPool.ActiveObjects.Count == 0) { return; }
+        if (_enemySpawner.Pool.ActiveObjects.Count == 0) { return; }
 
         (Enemy, float?) nearestEnemy = (default, null);
         Vector3 cannonPosition = transform.position;
         float angleDifference = 0;
 
-        foreach (var enemy in _enemySpawner.EnemyPool.ActiveObjects)
+        foreach (var enemy in _enemySpawner.Pool.ActiveObjects)
         {
             if (enemy == null) continue;
 
@@ -171,21 +175,32 @@ public class Cannon : MonoBehaviour, IUpgradable
         b.OnShoot(UpgradeLevel);
     }
 
-    void OnDestroy() 
+    private void OnDestroy() => Unsubscribe();
+
+    private void OnDisable() => Unsubscribe();
+
+    void Unsubscribe() 
     {
-        foreach (var bullet in _bulletPool.PoolQueue)
-        {
-            bullet.OnDestroyed -= _bulletPool.Return;
-            _gameManager.OnChangePauseState -= bullet.HandlePauseState;
+        _upgradesManager.OnUpgraded -= HandleUpgraded;
+        if (_bulletPool != null) {
+            foreach (var bullet in _bulletPool.PoolQueue)
+            {
+                bullet.OnDestroyed -= _bulletPool.Return;
+                _gameManager.OnChangePauseState -= bullet.HandlePauseState;
+            }
         }
-        foreach (var particle in _particlePool.PoolQueue)
-        {
-            particle.OnDestroyed -= _particlePool.Return;
+        if (_particlePool != null) {
+            foreach (var particle in _particlePool.PoolQueue)
+            {
+                particle.OnDestroyed -= _particlePool.Return;
+            }
         }
-        foreach (var sound in _soundPool.PoolQueue)
-        {
-            sound.OnDestroyed -= _soundPool.Return;
-            _gameManager.OnChangePauseState -= sound.HandlePauseState;
+        if (_soundPool != null) {
+            foreach (var sound in _soundPool.PoolQueue)
+            {
+                sound.OnDestroyed -= _soundPool.Return;
+                _gameManager.OnChangePauseState -= sound.HandlePauseState;
+            }
         }
     }
 

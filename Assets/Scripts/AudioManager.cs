@@ -22,7 +22,7 @@ public class AudioManager : MonoBehaviour, IDataPersistence
 
     private void Start()
     {
-        _currentIndex = UnityEngine.Random.Range(0, _tracks.Count - 1);
+        _currentIndex = UnityEngine.Random.Range(0, _tracks.Count);
         _musicSource.PlayOneShot(_tracks[_currentIndex]);
 
         _musicVolumeSlider.onValueChanged.AddListener((value) => {

@@ -13,10 +13,14 @@ public class ScoreManager : MonoBehaviour, IDataPersistence
     public event Action<int> OnScoreChanged;
     private GameManager _gameManager;
 
+    private void OnEnable() 
+    {
+        ServicesStorage.Instance.Register(this);
+    }
+
     void Start()
     {
         Score = 0;
-        ServicesStorage.Instance.Register(this);
         _gameManager = ServicesStorage.Instance.Get<GameManager>();
         _gameManager.OnGameOver += UpdateBestScoreText;
     }
