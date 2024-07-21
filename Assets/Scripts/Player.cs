@@ -59,13 +59,7 @@ public class Player : MonoBehaviour
             _takenDamage += _damagePerHit;
         }
     }
-    private void HandleChangedHP(int newHP) 
-    {
-        get => _takenDamage;
-        set
-        {
-            OnPlayerDamaged?.Invoke(value);
-        }
+    
     }
         public void PlayDestroyAnimation()
     {
