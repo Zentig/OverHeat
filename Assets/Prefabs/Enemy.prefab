@@ -103,7 +103,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   <WorthScore>k__BackingField: 200
   <Damage>k__BackingField: 1
-  _destroyedStateGravity: 3
+  _destroyedStateGravity: 1
   _speed: 6.5
 --- !u!50 &1895990686717516192
 Rigidbody2D:
@@ -117,9 +117,9 @@ Rigidbody2D:
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
-  m_Mass: 10
+  m_Mass: 1000
   m_LinearDrag: 0
-  m_AngularDrag: 0.05
+  m_AngularDrag: 25
   m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:

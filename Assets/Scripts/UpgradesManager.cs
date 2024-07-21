@@ -23,6 +23,7 @@ public class UpgradesManager : MonoBehaviour, IDataPersistence
         foreach (var item in data.Upgrades)
         {
             _upgrades.TryAdd(item.Key, _maxUpgradeLevels != null && _maxUpgradeLevels.ContainsKey(item.Key) ? Mathf.Clamp(item.Value, 0, _maxUpgradeLevels[item.Key]) : item.Value);
+            OnUpgraded?.Invoke(item.Key, _upgrades[item.Key]);
         }
     }
 
@@ -74,5 +75,7 @@ public class UpgradesManager : MonoBehaviour, IDataPersistence
 public enum UpgradeTypes 
 {
     CannonLevel,
-    Defense
+    TurretLevel,
+    ArmorLevel,
+    CoolingSystemLevel
 }

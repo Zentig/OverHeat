@@ -8,6 +8,7 @@ public class Cannon : MonoBehaviour, IUpgradable
     [field:SerializeField] public int UpgradeLevel { get; set; }
     [field:SerializeField] public int MaxUpgradeLevel { get; set; }
     [field:SerializeField] public UpgradeTypes UpgradeType { get; set; }
+    [SerializeField] private GunConfig _config;
     [Header("Temperature")]
     [SerializeField] private float _temperatureAddValue;
     [Header("Sounds")]
@@ -16,9 +17,9 @@ public class Cannon : MonoBehaviour, IUpgradable
     [SerializeField] private float _minPitch = 0.8f;
     [SerializeField] private float _maxPitch = 1.2f;
     [Header("Shoot Configuration")]
+    [SerializeField] private float _baseCooldown;
     [SerializeField] private Bullet _bulletPrefab;
     [SerializeField] private Transform _spawnBulletPos;
-    [SerializeField] private float _shootTime;
     [SerializeField] private float _distanceThreshold;
     [SerializeField] private float _minZRotation;
     [SerializeField] private float _maxZRotation;
@@ -35,13 +36,13 @@ public class Cannon : MonoBehaviour, IUpgradable
     private GameObjectPool<BulletSound> _soundPool;
     private Transform _soundParent;
     [Header("Managers")]
-    private EnemySpawner _enemySpawner;    
+    private List<EnemySpawner> _enemySpawnerList;    
     private GameManager _gameManager;  
     private AudioManager _audioManager;
     private UpgradesManager _upgradesManager;
     private ShipTemperatureController _shipTemperatureController;
-
-    private int GetCurrentUpgradeLevel() => UpgradeLevel;
+    private Func<float, int, float> _calculateCooldownFunc;
+    private float _cooldown;
 
     private void OnEnable() 
     {
@@ -51,7 +52,10 @@ public class Cannon : MonoBehaviour, IUpgradable
 
     private void Start() 
     {
-        _enemySpawner = ServicesStorage.Instance.Get<EnemySpawner>();
+        _calculateCooldownFunc ??= _config.CalculateCooldown;
+        _cooldown = _calculateCooldownFunc(_baseCooldown, UpgradeLevel);
+
+        _enemySpawnerList = ServicesStorage.Instance.GetAll<EnemySpawner>();
         _gameManager = ServicesStorage.Instance.Get<GameManager>();
         _audioManager = ServicesStorage.Instance.Get<AudioManager>();
         _shipTemperatureController = ServicesStorage.Instance.Get<ShipTemperatureController>();
@@ -85,8 +89,19 @@ public class Cannon : MonoBehaviour, IUpgradable
     }
 
     private void HandleUpgraded(UpgradeTypes type, int level)
-    {
-        if (type == UpgradeType) UpgradeLevel = level;
+    { 
+        if (type == UpgradeType) 
+        {
+            if (level <= 0) 
+            {
+                gameObject.SetActive(false);
+                Unsubscribe();
+                return;
+            }
+            UpgradeLevel = level;
+            _calculateCooldownFunc ??= _config.CalculateCooldown;
+            _cooldown = _calculateCooldownFunc(_baseCooldown, UpgradeLevel);
+        }
     }
 
     private Bullet BulletPreloadAction()
@@ -94,7 +109,7 @@ public class Cannon : MonoBehaviour, IUpgradable
         var bullet = Instantiate(_bulletPrefab, _bulletStorage);
         bullet.OnDestroyed += _bulletPool.Return;
         _gameManager.OnChangePauseState += bullet.HandlePauseState;
-        bullet.Init(); 
+        bullet.Init(_config); 
         return bullet;
     }
 
@@ -114,7 +129,7 @@ public class Cannon : MonoBehaviour, IUpgradable
         Rotation();
 
         _timePassed += Time.deltaTime;
-        if (_timePassed >= _shootTime) 
+        if (_timePassed >= _cooldown) 
         {
             if (_nearestEnemy != null && _nearestEnemy.isActiveAndEnabled) Shoot();
             _timePassed = 0;
@@ -123,30 +138,34 @@ public class Cannon : MonoBehaviour, IUpgradable
 
     private void Rotation() 
     {
-        if (_enemySpawner.EnemyPool.ActiveObjects.Count == 0) { return; }
-
         (Enemy, float?) nearestEnemy = (default, null);
         Vector3 cannonPosition = transform.position;
-        float angleDifference = 0;
+        float angleDifference = 180;
 
-        foreach (var enemy in _enemySpawner.EnemyPool.ActiveObjects)
+        foreach (var enemySpawner in _enemySpawnerList)
         {
-            if (enemy == null) continue;
+            if (enemySpawner.Pool.ActiveObjects.Count == 0) { continue; }
 
-            Vector3 enemyPosition = enemy.transform.position;
-            float distanceToNextEnemy = Vector2.Distance(enemyPosition, cannonPosition);
-            angleDifference = GetAngleBetweenTwoPositions(transform, enemy.transform);
-
-            if ((nearestEnemy.Item2 == null || distanceToNextEnemy < nearestEnemy.Item2) && distanceToNextEnemy < _distanceThreshold && angleDifference > _minZRotation && angleDifference < _maxZRotation)  
+            foreach (var enemy in enemySpawner.Pool.ActiveObjects)
             {
-                nearestEnemy = (enemy,distanceToNextEnemy);
+                if (enemy == null) continue;
+
+                Vector3 enemyPosition = enemy.transform.position;
+                float distanceToNextEnemy = Vector2.Distance(enemyPosition, cannonPosition);
+                angleDifference = GetAngleBetweenTwoPositions(transform.position + (Vector3)Vector2.right, enemy.transform.position);
+
+                if ((nearestEnemy.Item2 == null || angleDifference < nearestEnemy.Item2) && distanceToNextEnemy < _distanceThreshold 
+                         && angleDifference > _minZRotation && angleDifference < _maxZRotation)  
+                {
+                    nearestEnemy = (enemy,angleDifference);
+                }
             }
         }
         _nearestEnemy = nearestEnemy.Item1;
         transform.rotation = Quaternion.Euler(0, 0, angleDifference);
     }
 
-    private float GetAngleBetweenTwoPositions(Transform first, Transform second) => Mathf.Atan2(second.transform.position.y - first.position.y, second.transform.position.x - first.position.x) * Mathf.Rad2Deg;
+    private float GetAngleBetweenTwoPositions(Vector3 first, Vector3 second) => Mathf.Atan2(second.y - first.y, second.x - first.x) * Mathf.Rad2Deg;
 
     private void Shoot() 
     {
@@ -160,21 +179,32 @@ public class Cannon : MonoBehaviour, IUpgradable
         b.OnShoot(UpgradeLevel);
     }
 
-    void OnDestroy() 
+    private void OnDestroy() => Unsubscribe();
+
+    private void OnDisable() => Unsubscribe();
+
+    void Unsubscribe() 
     {
-        foreach (var bullet in _bulletPool.PoolQueue)
-        {
-            bullet.OnDestroyed -= _bulletPool.Return;
-            _gameManager.OnChangePauseState -= bullet.HandlePauseState;
+        _upgradesManager.OnUpgraded -= HandleUpgraded;
+        if (_bulletPool != null) {
+            foreach (var bullet in _bulletPool.PoolQueue)
+            {
+                bullet.OnDestroyed -= _bulletPool.Return;
+                _gameManager.OnChangePauseState -= bullet.HandlePauseState;
+            }
         }
-        foreach (var particle in _particlePool.PoolQueue)
-        {
-            particle.OnDestroyed -= _particlePool.Return;
+        if (_particlePool != null) {
+            foreach (var particle in _particlePool.PoolQueue)
+            {
+                particle.OnDestroyed -= _particlePool.Return;
+            }
         }
-        foreach (var sound in _soundPool.PoolQueue)
-        {
-            sound.OnDestroyed -= _soundPool.Return;
-            _gameManager.OnChangePauseState -= sound.HandlePauseState;
+        if (_soundPool != null) {
+            foreach (var sound in _soundPool.PoolQueue)
+            {
+                sound.OnDestroyed -= _soundPool.Return;
+                _gameManager.OnChangePauseState -= sound.HandlePauseState;
+            }
         }
     }
 
@@ -185,5 +215,8 @@ public class Cannon : MonoBehaviour, IUpgradable
         // Gizmos.DrawLine(transform.position, transform.right);
         Gizmos.color = Color.blue;
         if (_nearestEnemy != null && _nearestEnemy.isActiveAndEnabled) Gizmos.DrawLine(_nearestEnemy.transform.position, transform.position);
+        // Gizmos.color = Color.red;
+        // Gizmos.DrawLine(transform.position, new Vector2(Mathf.Cos(_maxZRotation * Mathf.Deg2Rad), Mathf.Sin(_maxZRotation * Mathf.Deg2Rad)*2));
+        // Gizmos.DrawLine(transform.position, new Vector2(Mathf.Cos(_minZRotation * Mathf.Deg2Rad), Mathf.Sin(_minZRotation * Mathf.Deg2Rad)*2));
     }
 }

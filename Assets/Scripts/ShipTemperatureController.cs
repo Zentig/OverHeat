@@ -1,9 +1,12 @@
 using System;
 using UnityEngine;
 
-public class ShipTemperatureController : MonoBehaviour
+public class ShipTemperatureController : MonoBehaviour, IUpgradable
 {
     public event Action OnOverheat;
+    [field:SerializeField] public int UpgradeLevel { get; set; }
+    [field:SerializeField] public int MaxUpgradeLevel { get; set; } = 10;
+    [field:SerializeField] public UpgradeTypes UpgradeType { get; set; } = UpgradeTypes.CoolingSystemLevel;
     [field:SerializeField] public float IncreaseRate { get; private set; } = 2f; 
     [field:SerializeField] public float DecreaseRate { get; private set; } = 0.5f; 
     [field:SerializeField] public float MinTemperature { get; private set; } = 0f;  
@@ -12,12 +15,15 @@ public class ShipTemperatureController : MonoBehaviour
     [SerializeField] private ScreenRedEffect _screenRedEffect;
     private bool _isPaused = false;
     private GameManager _gm;
+    private UpgradesManager _upgradesManager;
     private Rigidbody2D _rb;
     private bool _isOverheatInvoked;
 
     private void OnEnable() 
     {
         ServicesStorage.Instance.Register(this);
+        _upgradesManager = ServicesStorage.Instance.Get<UpgradesManager>();
+        _upgradesManager.OnUpgraded += HandleUpgraded;
     }
 
     private void Start()
@@ -28,8 +34,17 @@ public class ShipTemperatureController : MonoBehaviour
         _gm.OnGameOver += HandleGameOver;
     }
 
+    private void HandleUpgraded(UpgradeTypes type, int level)
+    {
+        if (type == UpgradeType) 
+        {
+            UpgradeLevel = level;
+        }
+    }
+
     private void OnDestroy() 
     {
+        _upgradesManager.OnUpgraded -= HandleUpgraded;
         _gm.OnChangePauseState -= HandlePauseState;
         _gm.OnGameOver -= HandleGameOver;
     }
@@ -61,9 +76,9 @@ public class ShipTemperatureController : MonoBehaviour
 
     void IncreaseTemperature()
     {
-        CurrentTemperature += IncreaseRate * Time.deltaTime;
-        CurrentTemperature = Mathf.Clamp(CurrentTemperature, MinTemperature, MaxTemperature);
-       // Debug.Log("Temperature increased: " + currentTemperature);
+        CurrentTemperature += (IncreaseRate - 0.5f * UpgradeLevel) * Time.deltaTime;
+        // CurrentTemperature = Mathf.Clamp(CurrentTemperature, MinTemperature, MaxTemperature);
+        // Debug.Log("Temperature increased: " + currentTemperature);
     }
 
     void DecreaseTemperature()

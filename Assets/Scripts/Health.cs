@@ -5,11 +5,11 @@ using UnityEngine;
 
 public class Health : MonoBehaviour
 {
-    [SerializeField] private int _health;
-    [field:SerializeField] public int MaxHealth { get; set; }
-    public event Action<int> OnHPChanged;
+    [SerializeField] private float _health;
+    [field:SerializeField] public float MaxHealth { get; set; }
+    public event Action<float> OnHPChanged;
 
-    public int HP 
+    public float HP 
     { 
         get => _health; 
         set 
