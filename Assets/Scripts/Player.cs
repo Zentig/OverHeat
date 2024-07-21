@@ -1,17 +1,27 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Mathematics;
 using UnityEngine;
 
 public class Player : MonoBehaviour
 {
     public event Action OnPlayerKilled;
+    public event Action OnPlayerLostAllArmor;
+    private event Action<float> OnPlayerDamaged; 
+    [SerializeField] private float _takenDamage;
+    [SerializeField] private float _damagePerHit;
     [SerializeField] private Animator _explosionPrefab;
     private ShipTemperatureController _shipTemperatureController;
-    private Health _healthReference;
+    private Armor _armorReference;
     private GameManager _gameManager;
     private Animator _animator;
 
+
+    private void OnEnable()
+    {
+        ServicesStorage.Instance.Register(this);
+    }
     void Start()
     {
         _shipTemperatureController = GetComponent<ShipTemperatureController>();
@@ -19,13 +29,13 @@ public class Player : MonoBehaviour
         _gameManager = ServicesStorage.Instance.Get<GameManager>();
         OnPlayerKilled += _gameManager.GameOver;
         _animator = GetComponent<Animator>();
-        _healthReference = GetComponent<Health>();
-        _healthReference.OnHPChanged += HandleChangedHP;
+        _armorReference = GetComponent<Armor>();
+        _armorReference.OnArmorChanged += HandleChangedArmor;
     }
 
     private void OnDestroy()
     {
-        _healthReference.OnHPChanged -= HandleChangedHP;
+        _armorReference.OnArmorChanged -= HandleChangedArmor;
         _shipTemperatureController.OnOverheat -= PlayDestroyAnimation;
     }
 
@@ -33,7 +43,8 @@ public class Player : MonoBehaviour
     {
         if (other.gameObject.TryGetComponent(out Enemy enemy) && !enemy.HadSwitchedToDestroyedMode) 
         {
-            _healthReference.HP -= enemy.Damage;
+            _armorReference.CurrentArmor -= enemy.Damage;
+            
             enemy.SwitchToDestroyAnimationMode();
         }
         if (other.gameObject.tag == "Death") 
@@ -41,18 +52,22 @@ public class Player : MonoBehaviour
             PlayExplosionAnimation();
         }
     }
-
-    private void HandleChangedHP(float newHP) 
+    private void HandleChangedArmor(int newArmor)
     {
-        if (newHP <= 0) 
+        if (newArmor < 0)
         {
-            Debug.Log("Game over!");
-            OnPlayerKilled?.Invoke();
-            _animator.speed = 0;
+            _takenDamage += _damagePerHit;
         }
     }
-
-    public void PlayDestroyAnimation()
+    private void HandleChangedHP(int newHP) 
+    {
+        get => _takenDamage;
+        set
+        {
+            OnPlayerDamaged?.Invoke(value);
+        }
+    }
+        public void PlayDestroyAnimation()
     {
         _animator.SetBool("gameOver", true);
     }
@@ -61,7 +76,7 @@ public class Player : MonoBehaviour
     {
         Animator explosionAnim = Instantiate(_explosionPrefab, new Vector3(transform.position.x, transform.position.y + 2.5f, transform.position.z), Quaternion.identity);
         explosionAnim.SetTrigger("explosion");
-        OnPlayerKilled?.Invoke();
+        OnPlayerKilled?.Invoke(); 
         gameObject.SetActive(false);
     }
 }

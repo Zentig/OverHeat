@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+
 public class ShipTemperatureController : MonoBehaviour, IUpgradable
 {
     public event Action OnOverheat;
@@ -18,6 +19,7 @@ public class ShipTemperatureController : MonoBehaviour, IUpgradable
     private UpgradesManager _upgradesManager;
     private Rigidbody2D _rb;
     private bool _isOverheatInvoked;
+    private Player _playerReference;
 
     private void OnEnable() 
     {
@@ -28,6 +30,7 @@ public class ShipTemperatureController : MonoBehaviour, IUpgradable
 
     private void Start()
     {
+        _playerReference = GetComponent<Player>();
         _rb = GetComponent<Rigidbody2D>(); 
         _gm = ServicesStorage.Instance.Get<GameManager>();
         _gm.OnChangePauseState += HandlePauseState;
@@ -76,9 +79,9 @@ public class ShipTemperatureController : MonoBehaviour, IUpgradable
 
     void IncreaseTemperature()
     {
-        CurrentTemperature += (IncreaseRate - 0.5f * UpgradeLevel) * Time.deltaTime;
-        // CurrentTemperature = Mathf.Clamp(CurrentTemperature, MinTemperature, MaxTemperature);
-        // Debug.Log("Temperature increased: " + currentTemperature);
+        CurrentTemperature += (IncreaseRate - 0.5f * UpgradeLevel *  _playerReference.TotalDamageTaken) * Time.deltaTime;
+        //CurrentTemperature = Mathf.Clamp(CurrentTemperature, MinTemperature, MaxTemperature);
+       // Debug.Log("Temperature increased: " + currentTemperature);
     }
 
     void DecreaseTemperature()
