@@ -16,13 +16,13 @@ public class EnemySpawner : Spawner<Enemy>
     private void OnEnable() 
     {
         ServicesStorage.Instance.Register(this);
-        _gameManager = ServicesStorage.Instance.Get<GameManager>();
-        _gameManager.OnChangePauseState += HandlePauseState;
-        _scoreManager = ServicesStorage.Instance.Get<ScoreManager>();
     }
 
     protected override void Start()
     {
+        _gameManager = ServicesStorage.Instance.Get<GameManager>();
+        _gameManager.OnChangePauseState += HandlePauseState;
+        _scoreManager = ServicesStorage.Instance.Get<ScoreManager>();
         base.Start();
         _possibleEnemySpawnPositions = new();
     }
@@ -39,7 +39,7 @@ public class EnemySpawner : Spawner<Enemy>
 
     protected override Enemy PreloadAction()
     {
-        var obj = UnityEngine.Random.Range(0,2) == 0 ? Instantiate(_prefab, _storage) : Instantiate(_prefab2, _storage);
+        var obj = Instantiate(_prefab, _storage);
         obj.OnDestroyed += Pool.Return;
         return obj;
     }
