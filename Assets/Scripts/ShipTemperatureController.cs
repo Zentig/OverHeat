@@ -79,7 +79,7 @@ public class ShipTemperatureController : MonoBehaviour, IUpgradable
 
     void IncreaseTemperature()
     {
-        CurrentTemperature += (IncreaseRate - 0.5f * UpgradeLevel *  _playerReference.TotalDamageTaken) * Time.deltaTime;
+        CurrentTemperature += (IncreaseRate - 0.5f * UpgradeLevel ) * Time.deltaTime * _playerReference.TotalDamageTaken;
         //CurrentTemperature = Mathf.Clamp(CurrentTemperature, MinTemperature, MaxTemperature);
        // Debug.Log("Temperature increased: " + currentTemperature);
     }

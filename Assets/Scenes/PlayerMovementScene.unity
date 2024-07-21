@@ -3018,9 +3018,9 @@ GameObject:
   - component: {fileID: 1153331201}
   - component: {fileID: 1153331207}
   - component: {fileID: 1153331199}
-  - component: {fileID: 1153331203}
   - component: {fileID: 1153331205}
   - component: {fileID: 1153331206}
+  - component: {fileID: 1153331208}
   - component: {fileID: 1153331200}
   - component: {fileID: 1153331204}
   m_Layer: 0
@@ -3145,20 +3145,6 @@ Transform:
   - {fileID: 209322711}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 3.498}
---- !u!114 &1153331203
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1153331198}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3eac53816b85773408daa2c2463ed687, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _health: 3
-  <MaxHealth>k__BackingField: 3
 --- !u!61 &1153331204
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -3258,7 +3244,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9640104c171e21009ea843ec10e9b4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _takenDamage: 1
+  _damagePerHit: 0.5
   _explosionPrefab: {fileID: 2076521866541362091, guid: e8e2b8475e4ed78258883242fb299c45, type: 3}
+--- !u!114 &1153331208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153331198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6de4963618b34f4a810cddaacddd6b8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _armor: 3
+  <MaxArmor>k__BackingField: 3
 --- !u!1 &1204505619
 GameObject:
   m_ObjectHideFlags: 0
@@ -5607,7 +5609,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 62524446cb2333ad6b29f095553f3d4d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _healthReference: {fileID: 1153331203}
+  _healthReference: {fileID: 0}
   _hpPrefab: {fileID: 3425727336507002566, guid: 49522087784c5faa3ae4796ae6054b62, type: 3}
   _hpParent: {fileID: 174674532}
 --- !u!1660057539 &9223372036854775807
