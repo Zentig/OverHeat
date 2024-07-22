@@ -422,6 +422,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _armorReference: {fileID: 1153331208}
   _armorFillImage: {fileID: 144286713}
+  _armorPercentText: {fileID: 2037380667}
 --- !u!1 &174674531
 GameObject:
   m_ObjectHideFlags: 0
