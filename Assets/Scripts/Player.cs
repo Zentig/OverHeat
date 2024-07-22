@@ -7,7 +7,6 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public event Action OnPlayerKilled;
-    public event Action OnPlayerLostAllArmor;
     private event Action<float> OnPlayerDamaged; 
     [SerializeField] private float _takenDamage;
     [SerializeField] private float _damagePerHit;
