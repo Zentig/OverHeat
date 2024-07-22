@@ -9,12 +9,15 @@ public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour
     [SerializeField] protected T _prefab;
     [SerializeField] protected float _timeToSpawn;
     [SerializeField] protected int _preloadCount = 20;
+    private GameManager _gameManager;
     protected Transform _storage;
     protected float _timePassed;
     protected bool _isGamePaused;
 
     protected virtual void Start()
     {
+        _gameManager = ServicesStorage.Instance.Get<GameManager>();
+        _gameManager.OnChangePauseState += HandlePauseState;
         _storage = new GameObject($"{typeof(T).FullName}Pool").transform;
         _timePassed = _timeToSpawn - 0.1f;
         Pool = new GameObjectPool<T>(PreloadAction, GetAction, ReturnAction, _preloadCount);
@@ -25,6 +28,11 @@ public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour
     protected abstract void GetAction(T obj);
     protected abstract void ReturnAction(T obj);
     protected abstract void Spawn();
+
+    protected virtual void OnDestroy() 
+    {
+        _gameManager.OnChangePauseState -= HandlePauseState;
+    }
 
     protected virtual void Update()
     {
@@ -38,4 +46,5 @@ public abstract class Spawner<T> : MonoBehaviour where T : MonoBehaviour
         } 
     }
 
+    private void HandlePauseState(bool pauseState) => _isGamePaused = pauseState;
 }

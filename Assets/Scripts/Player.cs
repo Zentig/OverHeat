@@ -25,13 +25,15 @@ public class Player : MonoBehaviour
 
     void Start()
     {
-        _shipTemperatureController = GetComponent<ShipTemperatureController>();
-        _shipTemperatureController.OnOverheat += PlayDestroyAnimation;
         _gameManager = ServicesStorage.Instance.Get<GameManager>();
-        OnPlayerKilled += _gameManager.GameOver;
+
+        _shipTemperatureController = GetComponent<ShipTemperatureController>();
         _animator = GetComponent<Animator>();
         _armorReference = GetComponent<Armor>();
+
+        _shipTemperatureController.OnOverheat += PlayDestroyAnimation;
         _armorReference.OnArmorChanged += HandleChangedArmor;
+        OnPlayerKilled += _gameManager.GameOver;
     }
 
     private void OnDestroy()

@@ -60,6 +60,7 @@ public class Enemy : MonoBehaviour
             ResetCollision();
         }
     }
+    
     private void ResetCollision() 
     {
         _rb.gravityScale = 0;

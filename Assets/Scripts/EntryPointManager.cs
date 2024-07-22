@@ -4,9 +4,6 @@ using UnityEngine.SceneManagement;
 
 public class EntryPointManager : MonoBehaviour
 {
-    private void Awake() 
-    {
-        DontDestroyOnLoad(this);
-        SceneManager.LoadScene(1);
-    }
+    private void Awake() => DontDestroyOnLoad(this);
+    private void Start() => SceneManager.LoadScene(1);
 }

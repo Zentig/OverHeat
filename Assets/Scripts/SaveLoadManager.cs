@@ -75,11 +75,13 @@ public class GameData
     public int BestScore;
     public float SfxVolume;
     public float MusicVolume;
+    public int Money;
     public Dictionary<UpgradeTypes, int> Upgrades;
 
     public GameData()
     {
         BestScore = 0;
+        Money = 0;
         SfxVolume = 1;
         MusicVolume = 1;
         Upgrades = new Dictionary<UpgradeTypes, int>();
