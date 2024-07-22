@@ -9,14 +9,9 @@ public class ShakingSystem : MonoBehaviour
     {
         _camera = GetComponent<Camera>();
     }
-
-    private void Start()
-    {
-        _player = ServicesStorage.Instance.Get<Player>();
-    }
-
     void OnEnable()
     {
+        _player = ServicesStorage.Instance.Get<Player>();
         _player.ShakingCam += ShakingCamera;
     }
 
