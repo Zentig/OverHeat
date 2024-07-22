@@ -5,24 +5,21 @@ using UnityEngine.UI;
 
 public class UIArmor : MonoBehaviour
 {
-    private Armor _armorReference;
-    [SerializeField] private Image armorFillImage;
-    [SerializeField] private float fillAmount;
+    [SerializeField] private Armor _armorReference;
+    [SerializeField] private Image _armorFillImage;
     
     void OnEnable()
     {
         _armorReference.OnArmorChanged += UpdateArmorUI; 
     }
-    void Update()
-    {
-        
-    }
-    void UpdateArmorUI(int newArmorValue = 1)
-    {
 
-        fillAmount = ((float)newArmorValue / _armorReference.MaxArmor) * _armorReference.CurrentArmor;
-       
-        armorFillImage.fillAmount = fillAmount;
+    void OnDisable()
+    {
+        _armorReference.OnArmorChanged -= UpdateArmorUI; 
     }
 
+    void UpdateArmorUI(int newArmorValue)
+    {
+        _armorFillImage.fillAmount = (float)newArmorValue / _armorReference.MaxArmor;
+    }
 }
