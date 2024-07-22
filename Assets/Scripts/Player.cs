@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Mathematics;
@@ -7,6 +7,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public event Action OnPlayerKilled;
+    public event Action ShakingCam; // Мій Евент для камери.
     public event Action OnPlayerLostAllArmor;
     private event Action<float> OnPlayerDamaged; 
     [SerializeField] private float _takenDamage;
@@ -17,11 +18,11 @@ public class Player : MonoBehaviour
     private GameManager _gameManager;
     private Animator _animator;
 
-
     private void OnEnable()
     {
         ServicesStorage.Instance.Register(this);
     }
+
     void Start()
     {
         _shipTemperatureController = GetComponent<ShipTemperatureController>();
@@ -46,6 +47,8 @@ public class Player : MonoBehaviour
             _armorReference.CurrentArmor -= enemy.Damage;
             
             enemy.SwitchToDestroyAnimationMode();
+
+            ShakingCam?.Invoke(); // Викликаю потрясіння для камери.
         }
         if (other.gameObject.tag == "Death") 
         {
@@ -67,7 +70,8 @@ public class Player : MonoBehaviour
             OnPlayerDamaged?.Invoke(value);
         }
     }
-        public void PlayDestroyAnimation()
+    
+    public void PlayDestroyAnimation()
     {
         _animator.SetBool("gameOver", true);
     }

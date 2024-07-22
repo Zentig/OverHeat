@@ -667,6 +667,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 828717579}
     m_Modifications:
+    - target: {fileID: 1122102478389006139, guid: 153b95cbe9dd47d85bf5fb56dc645bae, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 240.27002
+      objectReference: {fileID: 0}
     - target: {fileID: 4358186457200759988, guid: 153b95cbe9dd47d85bf5fb56dc645bae, type: 3}
       propertyPath: m_Value
       value: 0
@@ -1915,13 +1919,13 @@ RectTransform:
   - {fileID: 144286711}
   - {fileID: 2060709993}
   - {fileID: 1117677473}
+  - {fileID: 831791862}
+  - {fileID: 781004900}
+  - {fileID: 548025776}
   - {fileID: 1781977385}
   - {fileID: 2105523014}
   - {fileID: 1537280978}
   - {fileID: 834185628}
-  - {fileID: 831791862}
-  - {fileID: 781004900}
-  - {fileID: 548025776}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -4736,7 +4740,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1908286327
 Transform:
   m_ObjectHideFlags: 0
@@ -5297,7 +5301,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2060709993
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5479,6 +5483,7 @@ GameObject:
   - component: {fileID: 2086942935}
   - component: {fileID: 2086942934}
   - component: {fileID: 2086942933}
+  - component: {fileID: 2086942936}
   m_Layer: 0
   m_Name: MainCamera
   m_TagString: MainCamera
@@ -5560,6 +5565,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2086942936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2086942932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 295fd835edac2bc499eff3050d2abb52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2105523013
 GameObject:
   m_ObjectHideFlags: 0
