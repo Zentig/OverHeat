@@ -3,6 +3,10 @@ using PrimeTween;
 
 public class ShakingSystem : MonoBehaviour
 {
+    [Header("Shaking Settings")]
+    [SerializeField] private float _strengthFactor = 1f;
+    [SerializeField] private float _duration = 0.5f;
+    [SerializeField] private float _frequency = 10f;
     private Camera _camera;
     private Player _player;
 
@@ -10,7 +14,7 @@ public class ShakingSystem : MonoBehaviour
     {
         _camera = GetComponent<Camera>();
     }
-    
+
     void OnEnable()
     {
         _player = ServicesStorage.Instance.Get<Player>();
@@ -24,7 +28,6 @@ public class ShakingSystem : MonoBehaviour
 
     void ShakingCamera()
     {
-        Debug.Log("Камера спіймала потрясіння!");
-        Tween.ShakeCamera(_camera, strengthFactor: 1.0f, duration: 0.5f, frequency: 10);
+        Tween.ShakeCamera(_camera, _strengthFactor, _duration, _frequency);
     }
 }

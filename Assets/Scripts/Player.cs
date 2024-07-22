@@ -59,7 +59,7 @@ public class Player : MonoBehaviour
     {
         if (newArmor < 0)
         {
-            _takenDamage+=_damagePerHit; 
+            _takenDamage += _damagePerHit; 
         }
     }
     public float TotalDamageTaken
