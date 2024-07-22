@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,11 +6,17 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public event Action OnPlayerKilled;
+    public event Action ShakingCam; // Мій Евент для камери.
     [SerializeField] private Animator _explosionPrefab;
     private ShipTemperatureController _shipTemperatureController;
     private Health _healthReference;
     private GameManager _gameManager;
     private Animator _animator;
+
+    private void OnEnable()
+    {
+        ServicesStorage.Instance.Register(this);
+    }
 
     void Start()
     {
@@ -35,6 +41,8 @@ public class Player : MonoBehaviour
         {
             _healthReference.HP -= enemy.Damage;
             enemy.SwitchToDestroyAnimationMode();
+
+            ShakingCam?.Invoke(); // Викликаю потрясіння для камери.
         }
         if (other.gameObject.tag == "Death") 
         {
