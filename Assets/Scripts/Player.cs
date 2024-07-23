@@ -7,9 +7,10 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public event Action OnPlayerKilled;
-    private event Action<float> OnPlayerDamaged; 
+    public event Action<float> OnPlayerDamaged; 
     [SerializeField] private float _takenDamage;
     [SerializeField] private float _damagePerHit;
+    [SerializeField] public float _hitsInSum { get; private set; }
     [SerializeField] private Animator _explosionPrefab;
     private ShipTemperatureController _shipTemperatureController;
     private Armor _armorReference;
@@ -55,7 +56,9 @@ public class Player : MonoBehaviour
     {
         if (newArmor < 0)
         {
-            _takenDamage+=_damagePerHit; 
+            _takenDamage+= _damagePerHit;
+            _hitsInSum++;
+            OnPlayerDamaged?.Invoke(_hitsInSum);
         }
     }
     public float TotalDamageTaken
@@ -63,7 +66,7 @@ public class Player : MonoBehaviour
         get => _takenDamage;
         set
         {
-            OnPlayerDamaged?.Invoke(value);
+            OnPlayerDamaged?.Invoke(_hitsInSum);
         }
     }
         public void PlayDestroyAnimation()
