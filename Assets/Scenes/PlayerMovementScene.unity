@@ -1424,7 +1424,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1537280982}
         m_TargetAssemblyTypeName: GameOverMenu, Assembly-CSharp
-        m_MethodName: Restart
+        m_MethodName: GoToWorkshop
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2952,8 +2952,7 @@ MonoBehaviour:
   _bulletPrefab: {fileID: 951416460815001948, guid: 7e92b6db7b3cc186c92a91e408216786, type: 3}
   _spawnBulletPos: {fileID: 603875109}
   _distanceThreshold: 20
-  _minZRotation: -90
-  _maxZRotation: 90
+  _anglularThreshold: 0.9
   _bulletStorage: {fileID: 1346092732}
   _particlePrefab: {fileID: 619609371577100898, guid: 24c99750db868df45acc8dca05e5c576, type: 3}
   _particleParent: {fileID: 362077199}
@@ -4791,7 +4790,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1908286327
 Transform:
   m_ObjectHideFlags: 0
@@ -4824,17 +4823,16 @@ MonoBehaviour:
   <MaxUpgradeLevel>k__BackingField: 5
   <UpgradeType>k__BackingField: 0
   _config: {fileID: 11400000, guid: 5c6b1f2eec91133e0a7f7e34b4d097fc, type: 2}
-  _temperatureAddValue: 0.5
+  _temperatureAddValue: 0.25
   _prefab: {fileID: 8299671367012391881, guid: cca04d56b853534a98fe4ac86b862366, type: 3}
   _shootSound: {fileID: 8300000, guid: a5213f0a76e174f0f94a1b931dbe523a, type: 3}
   _minPitch: 0.8
   _maxPitch: 1.2
-  _baseCooldown: 0.9
+  _baseCooldown: 0.65
   _bulletPrefab: {fileID: 951416460815001948, guid: 96daabceb83006a65a9bcae7acbe4757, type: 3}
   _spawnBulletPos: {fileID: 452495776}
   _distanceThreshold: 20
-  _minZRotation: -90
-  _maxZRotation: 90
+  _anglularThreshold: 0.445
   _bulletStorage: {fileID: 1792656529}
   _particlePrefab: {fileID: 619609371577100898, guid: 24c99750db868df45acc8dca05e5c576, type: 3}
   _particleParent: {fileID: 362077199}

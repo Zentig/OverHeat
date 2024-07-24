@@ -1,23 +1,24 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class UpgradesManager : MonoBehaviour, IDataPersistence
 {
     public event Action<UpgradeTypes, int> OnUpgraded;
     private Dictionary<UpgradeTypes, int> _upgrades;
-    private Dictionary<UpgradeTypes, int> _maxUpgradeLevels;
-
-    private void OnEnable() 
+    private readonly Dictionary<UpgradeTypes, int> _maxUpgradeLevels = new()
     {
-        ServicesStorage.Instance.Register(this);
-    }
+        {UpgradeTypes.CannonLevel, 5},
+        {UpgradeTypes.TurretLevel, 3},
+        {UpgradeTypes.ArmorLevel, 3},
+        {UpgradeTypes.CoolingSystemLevel, 10},
+    };
+
+    private void OnEnable() => ServicesStorage.Instance.Register(this);
 
     public void LoadData(GameData data)
     {
-        InitializeMaxUpgradeLevels();
+        // InitializeMaxUpgradeLevels();
         _upgrades = new Dictionary<UpgradeTypes, int>();
         
         foreach (var item in data.Upgrades)
@@ -32,17 +33,17 @@ public class UpgradesManager : MonoBehaviour, IDataPersistence
         data.Upgrades = _upgrades;
     }
 
-    private void InitializeMaxUpgradeLevels() 
-    {
-        _maxUpgradeLevels = new Dictionary<UpgradeTypes, int>();
-        var upgradableObjects = FindObjectsOfType<MonoBehaviour>().OfType<IUpgradable>().ToList();
-        foreach (var upgradableObject in upgradableObjects) 
-        {
-            bool isLoaded = _maxUpgradeLevels.TryAdd(upgradableObject.UpgradeType, upgradableObject.MaxUpgradeLevel);
-            Debug.Log(isLoaded ? $"The object {upgradableObject.UpgradeType} was successfully initialized with max upgrade level of {upgradableObject.MaxUpgradeLevel}" 
-                               : $"The object {upgradableObject.UpgradeType} wasn't successfully initialized");
-        }
-    }
+    // private void InitializeMaxUpgradeLevels() 
+    // {
+    //     _maxUpgradeLevels = new Dictionary<UpgradeTypes, int>();
+    //     var upgradableObjects = FindObjectsOfType<MonoBehaviour>().OfType<IUpgradable>().ToList();
+    //     foreach (var upgradableObject in upgradableObjects) 
+    //     {
+    //         bool isLoaded = _maxUpgradeLevels.TryAdd(upgradableObject.UpgradeType, upgradableObject.MaxUpgradeLevel);
+    //         Debug.Log(isLoaded ? $"The object {upgradableObject.UpgradeType} was successfully initialized with max upgrade level of {upgradableObject.MaxUpgradeLevel}" 
+    //                            : $"The object {upgradableObject.UpgradeType} wasn't successfully initialized");
+    //     }
+    // }
 
     public int GetUpgradeLevel(UpgradeTypes type)
     {
@@ -52,7 +53,7 @@ public class UpgradesManager : MonoBehaviour, IDataPersistence
         return default;
     }
 
-    public void SetUpgradeLevel(UpgradeTypes type, int addPoints)
+    public void AddUpgradeLevel(UpgradeTypes type, int addPoints)
     {
         if (_upgrades.ContainsKey(type)) 
         {

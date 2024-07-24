@@ -35,7 +35,12 @@ public class GameOverMenu : MonoBehaviour
 
     public void Restart() 
     {
-        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().name);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void GoToWorkshop() 
+    {
+        SceneManager.LoadScene(1);
     }
 
     public void Quit() 

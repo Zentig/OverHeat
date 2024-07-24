@@ -1,12 +1,10 @@
 using System;
 using UnityEngine;
 
-
 public class ShipTemperatureController : MonoBehaviour, IUpgradable
 {
     public event Action OnOverheat;
     [field:SerializeField] public int UpgradeLevel { get; set; }
-    [field:SerializeField] public int MaxUpgradeLevel { get; set; } = 10;
     [field:SerializeField] public UpgradeTypes UpgradeType { get; set; } = UpgradeTypes.CoolingSystemLevel;
     [field:SerializeField] public float IncreaseRate { get; private set; } = 2f; 
     [field:SerializeField] public float DecreaseRate { get; private set; } = 0.5f; 
@@ -79,9 +77,9 @@ public class ShipTemperatureController : MonoBehaviour, IUpgradable
 
     void IncreaseTemperature()
     {
-        CurrentTemperature += (IncreaseRate - 0.5f * UpgradeLevel ) * Time.deltaTime * _playerReference.TotalDamageTaken;
-        //CurrentTemperature = Mathf.Clamp(CurrentTemperature, MinTemperature, MaxTemperature);
-       // Debug.Log("Temperature increased: " + currentTemperature);
+        CurrentTemperature += (IncreaseRate - 0.5f * UpgradeLevel) * Time.deltaTime * _playerReference.TotalDamageTaken;
+        // CurrentTemperature = Mathf.Clamp(CurrentTemperature, MinTemperature, MaxTemperature);
+        // Debug.Log("Temperature increased: " + currentTemperature);
     }
 
     void DecreaseTemperature()

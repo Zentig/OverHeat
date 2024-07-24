@@ -6,7 +6,6 @@ using UnityEngine;
 public class Cannon : MonoBehaviour, IUpgradable
 {
     [field:SerializeField] public int UpgradeLevel { get; set; }
-    [field:SerializeField] public int MaxUpgradeLevel { get; set; }
     [field:SerializeField] public UpgradeTypes UpgradeType { get; set; }
     [SerializeField] private GunConfig _config;
     [Header("Temperature")]
@@ -21,8 +20,7 @@ public class Cannon : MonoBehaviour, IUpgradable
     [SerializeField] private Bullet _bulletPrefab;
     [SerializeField] private Transform _spawnBulletPos;
     [SerializeField] private float _distanceThreshold;
-    [SerializeField] private float _minZRotation;
-    [SerializeField] private float _maxZRotation;
+    [Range(0,1), SerializeField] private float _anglularThreshold = 0.9f;
     [SerializeField] private Transform _bulletStorage;
     [Header("Particles")]
     [SerializeField] private BulletParticle _particlePrefab;
@@ -140,7 +138,7 @@ public class Cannon : MonoBehaviour, IUpgradable
     {
         (Enemy, float?) nearestEnemy = (default, null);
         Vector3 cannonPosition = transform.position;
-        float angleDifference = 180;
+        float angleDifference;
 
         foreach (var enemySpawner in _enemySpawnerList)
         {
@@ -152,20 +150,19 @@ public class Cannon : MonoBehaviour, IUpgradable
 
                 Vector3 enemyPosition = enemy.transform.position;
                 float distanceToNextEnemy = Vector2.Distance(enemyPosition, cannonPosition);
-                angleDifference = GetAngleBetweenTwoPositions(transform.position + (Vector3)Vector2.right, enemy.transform.position);
+                angleDifference = Vector2.Dot(Vector2.right, (enemyPosition - cannonPosition).normalized);
 
-                if ((nearestEnemy.Item2 == null || angleDifference < nearestEnemy.Item2) && distanceToNextEnemy < _distanceThreshold 
-                         && angleDifference > _minZRotation && angleDifference < _maxZRotation)  
+                if ((nearestEnemy.Item2 == null || angleDifference < nearestEnemy.Item2) && distanceToNextEnemy < _distanceThreshold && angleDifference > 1 - _anglularThreshold)  
                 {
                     nearestEnemy = (enemy,angleDifference);
                 }
             }
         }
         _nearestEnemy = nearestEnemy.Item1;
-        transform.rotation = Quaternion.Euler(0, 0, angleDifference);
-    }
+        if (_nearestEnemy == null) return;
 
-    private float GetAngleBetweenTwoPositions(Vector3 first, Vector3 second) => Mathf.Atan2(second.y - first.y, second.x - first.x) * Mathf.Rad2Deg;
+        transform.rotation = Quaternion.Euler(0, 0, Mathf.Atan2(_nearestEnemy.transform.position.y - transform.position.y, _nearestEnemy.transform.position.x - transform.position.x) * Mathf.Rad2Deg);
+    }
 
     private void Shoot() 
     {
@@ -211,12 +208,11 @@ public class Cannon : MonoBehaviour, IUpgradable
     private void OnDrawGizmos() 
     {
         Gizmos.DrawWireSphere(transform.position, _distanceThreshold);
-        // Gizmos.color = Color.red;
-        // Gizmos.DrawLine(transform.position, transform.right);
         Gizmos.color = Color.blue;
-        if (_nearestEnemy != null && _nearestEnemy.isActiveAndEnabled) Gizmos.DrawLine(_nearestEnemy.transform.position, transform.position);
-        // Gizmos.color = Color.red;
-        // Gizmos.DrawLine(transform.position, new Vector2(Mathf.Cos(_maxZRotation * Mathf.Deg2Rad), Mathf.Sin(_maxZRotation * Mathf.Deg2Rad)*2));
-        // Gizmos.DrawLine(transform.position, new Vector2(Mathf.Cos(_minZRotation * Mathf.Deg2Rad), Mathf.Sin(_minZRotation * Mathf.Deg2Rad)*2));
+
+        float projection = _anglularThreshold;
+        float x = Mathf.Sqrt(1 - projection * projection);
+        Gizmos.DrawRay(transform.position, new Vector3(x, projection) * 10);
+        Gizmos.DrawRay(transform.position, new Vector3(x, -projection) * 10);
     }
 }
